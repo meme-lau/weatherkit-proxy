@@ -355,10 +355,8 @@ export default class WeatherKit2 {
             case "news": {
                 const placementsOffsets = data?.placements?.map(placement => {
                     const articlesOffsets = placement?.articles?.map(article => {
-                        const alertIdsOffset = WK2.Articles.createAlertIdsVector(
-                            builder,
-                            article?.alertIds?.map(alertId => builder.createString(alertId)),
-                        );
+                        const alertIdsOffsets = article?.alertIds?.map(alertId => WeatherKit2.createUuidOffset(builder, alertId))?.filter(Boolean) || [];
+                        const alertIdsOffset = WK2.Articles.createAlertIdsVector(builder, alertIdsOffsets);
                         const headlineOverrideOffset = builder.createString(article?.headlineOverride);
                         const idOffset = builder.createString(article?.id);
                         const localeOffset = builder.createString(article?.locale);
@@ -384,10 +382,7 @@ export default class WeatherKit2 {
                 const alertsOffsets = data?.alerts?.map(alert => {
                     const responsesOffsets = alert?.responses?.map(response => WK2.ResponseType[response]);
                     const responsesOffset = WK2.WeatherAlertSummary.createResponsesVector(builder, responsesOffsets);
-                    // 创建UUID的bytes vector
-                    const idBytesOffset = WK2.UUID.createBytesVector(builder, alert?.id?.bytes);
-                    // 创建UUID对象
-                    const idOffset = WK2.UUID.createUUID(builder, idBytesOffset);
+                    const idOffset = WeatherKit2.createUuidOffset(builder, alert?.id) || 0;
                     const areaIdOffset = builder.createString(alert?.areaId);
                     const areaNameOffset = builder.createString(alert?.areaName);
                     const attributionUrlOffset = builder.createString(alert?.attributionUrl);
@@ -884,7 +879,7 @@ export default class WeatherKit2 {
                             phenomena: [],
                             supportedStorefronts: [],
                         };
-                        for (let k = 0; k < NewsData?.placements(i)?.articles(j)?.alertIdsLength(); k++) article.alertIds.push(NewsData?.placements(i)?.articles(j)?.alertIds(k));
+                        for (let k = 0; k < NewsData?.placements(i)?.articles(j)?.alertIdsLength(); k++) article.alertIds.push(WeatherKit2.decodeUuid(NewsData?.placements(i)?.articles(j)?.alertIds(k)));
                         for (let k = 0; k < NewsData?.placements(i)?.articles(j)?.phenomenaLength(); k++) article.phenomena.push(NewsData?.placements(i)?.articles(j)?.phenomena(k));
                         for (let k = 0; k < NewsData?.placements(i)?.articles(j)?.supportedStorefrontsLength(); k++) article.supportedStorefronts.push(NewsData?.placements(i)?.articles(j)?.supportedStorefronts(k));
                         placement.articles.push(article);
@@ -913,7 +908,7 @@ export default class WeatherKit2 {
                         eventOnsetTime: WeatherAlertCollectionData?.alerts(i)?.eventOnsetTime(),
                         eventSource: WeatherAlertCollectionData?.alerts(i)?.eventSource(),
                         expireTime: WeatherAlertCollectionData?.alerts(i)?.expireTime(),
-                        id: { bytes: WeatherAlertCollectionData?.alerts(i)?.id()?.bytesArray() },
+                        id: WeatherKit2.decodeUuid(WeatherAlertCollectionData?.alerts(i)?.id()),
                         importance: WK2.ImportanceType[WeatherAlertCollectionData?.alerts(i)?.importance()],
                         issuedTime: WeatherAlertCollectionData?.alerts(i)?.issuedTime(),
                         phenomenon: WeatherAlertCollectionData?.alerts(i)?.phenomenon(),
@@ -985,6 +980,48 @@ export default class WeatherKit2 {
         }
         Console.info("✅ WeatherKit2.decode", `dataSet: ${dataSet}`);
         return data;
+    }
+
+    static toUuidBytes(uuid) {
+        if (!uuid) return null;
+        if (uuid instanceof Uint8Array) return uuid;
+        if (Array.isArray(uuid)) return uuid;
+        if (typeof uuid === "string") {
+            const bytesObject = WeatherKit2.uuidStringToBytesObject(uuid);
+            return bytesObject?.bytes || null;
+        }
+        if (uuid?.bytes instanceof Uint8Array || Array.isArray(uuid?.bytes)) return uuid.bytes;
+        if (typeof uuid?.bytesArray === "function") return uuid.bytesArray();
+        return null;
+    }
+
+    static uuidStringToBytesObject(uuidString) {
+        if (typeof uuidString !== "string") return null;
+        const hex = uuidString.replace(/-/g, "").toLowerCase();
+        if (!/^[0-9a-f]{32}$/.test(hex)) return null;
+        const bytes = [];
+        for (let i = 0; i < hex.length; i += 2) bytes.push(Number.parseInt(hex.slice(i, i + 2), 16));
+        return { bytes };
+    }
+
+    static uuidBytesObjectToString(uuid) {
+        const bytes = WeatherKit2.toUuidBytes(uuid);
+        if (!bytes || bytes.length !== 16) return null;
+        const hex = Array.from(bytes)
+            .map(byte => byte.toString(16).padStart(2, "0"))
+            .join("");
+        return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+    }
+
+    static createUuidOffset(builder, uuid) {
+        const bytes = WeatherKit2.toUuidBytes(uuid);
+        if (!bytes?.length) return null;
+        const idBytesOffset = WK2.UUID.createBytesVector(builder, bytes);
+        return WK2.UUID.createUUID(builder, idBytesOffset);
+    }
+
+    static decodeUuid(uuid) {
+        return WeatherKit2.uuidBytesObjectToString(uuid);
     }
 
     static createWeather(builder, airQualityOffset, currentWeatherOffset, forecastDailyOffset, forecastHourlyOffset, forecastNextHourOffset, newsOffset, weatherAlertsOffset, weatherChangesOffset, historicalComparisonsOffset, locationInfoOffset) {
