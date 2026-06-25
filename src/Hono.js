@@ -10,6 +10,17 @@ import { renderIndex } from "./function/indexPage.mjs";
 import { Response } from "./process/Response.mjs";
 import { fetch } from "./utils/index.mjs";
 
+function getCSTDateString() {
+    const d = new Date(Date.now() + 8 * 60 * 60 * 1000);
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    const hours = String(d.getUTCHours()).padStart(2, '0');
+    const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(d.getUTCSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 const app = new Hono();
 
 // 根路径路由，返回配置列表及一键导入可视化页面
@@ -32,9 +43,11 @@ app.get("/conf/:filename", async c => {
 
     // 获取当前的主机名
     const host = c.req.header("host");
+    const cstDateString = getCSTDateString();
 
     // 动态替换默认的主机名占位符
-    const content = configContent.replaceAll("__HOST__", host);
+    let content = configContent.replaceAll("__HOST__", host);
+    content = content.replaceAll("__DATE__", cstDateString);
 
     c.header("Content-Type", "text/plain; charset=utf-8");
     c.header("Content-Disposition", `attachment; filename="${filenameParam}"`);

@@ -5,7 +5,7 @@ export default {
 #!author = meme[https://github.com/meme]
 #!homepage = https://github.com/meme-lau/weatherkit-worker
 #!icon = https://developer.apple.com/assets/elements/icons/weatherkit/weatherkit-128x128.png
-#!date = 2026-06-25 14:40:00
+#!date = __DATE__
 
 [Rule]
 AND,((DOMAIN-SUFFIX,weatherkit.apple.com),(PROTOCOL,QUIC),(DST-PORT,443)),REJECT-NO-DROP
@@ -46,7 +46,7 @@ hostname = %APPEND% weatherkit.apple.com`,
 #!homepage = https://github.com/meme-lau/weatherkit-worker
 #!icon = https://developer.apple.com/assets/elements/icons/weatherkit/weatherkit-128x128.png
 #!system = iOS,iPadOS,macOS,watchOS
-#!date = 2026-06-25 14:40:00
+#!date = __DATE__
 #!system_version = 18
 
 [Rule]
@@ -87,7 +87,7 @@ hostname = weatherkit.apple.com`,
 #!author = meme[https://github.com/meme]
 #!homepage = https://github.com/meme-lau/weatherkit-worker
 #!icon = https://developer.apple.com/assets/elements/icons/weatherkit/weatherkit-128x128.png
-#!date = 2026-06-25 14:40:00
+#!date = __DATE__
 
 [Rule]
 AND,((DOMAIN-SUFFIX,weatherkit.apple.com),(PROTOCOL,QUIC),(DST-PORT,443)),REJECT-NO-DROP
@@ -133,7 +133,7 @@ author: |-
   meme[https://github.com/meme]
 homepage: "https://github.com/meme-lau/weatherkit-worker"
 icon: "https://developer.apple.com/assets/elements/icons/weatherkit/weatherkit-128x128.png"
-date: "2026-06-25 14:40:00"
+date: "__DATE__"
 
 rules:
 - AND,((DOMAIN-SUFFIX,weatherkit.apple.com),(PROTOCOL,QUIC),(DST-PORT,443)),REJECT-NO-DROP
@@ -165,7 +165,8 @@ http:
   - ^https?:\\/\\/weatherkit\\.apple\\.com\\/api\\/v1\\/airQualityScale\\/ https://__HOST__/api/v1/airQualityScale/ transparent
   - ^https?:\\/\\/weatherkit\\.apple\\.com\\/api\\/v2\\/weather\\/ https://__HOST__/api/v2/weather/ transparent`,
 
-    "config.yaml": `name: 'WeatherKit-Worker'
+    "config.yaml": `# Date: __DATE__
+name: 'WeatherKit-Worker'
 description: |-
   本项目是对 NSRingo/WeatherKit 的自托管优化重构版本。支持独立自部署至 Cloudflare Workers。
   1.解锁全部天气功能
