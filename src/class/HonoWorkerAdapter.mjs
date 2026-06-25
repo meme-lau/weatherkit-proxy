@@ -62,10 +62,15 @@ export default class HonoWorkerAdapter {
             case url.hostname.endsWith(".workers.dev"): {
                 const [host, ...path] = `${restPath}`.split("/");
                 if (!host) break;
-                url.protocol = "https:";
-                url.hostname = host;
-                url.port = "443";
-                url.pathname = `/${path.join("/")}`;
+                if (host.includes(".")) {
+                    url.protocol = "https:";
+                    url.hostname = host;
+                    url.port = "443";
+                    url.pathname = `/${path.join("/")}`;
+                } else {
+                    url.hostname = "weatherkit.apple.com";
+                    url.pathname = `/${restPath}`;
+                }
                 break;
             }
         }
