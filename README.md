@@ -26,7 +26,7 @@
 1. 登录您的 [Cloudflare 仪表板](https://dash.cloudflare.com/)。
 2. 依次进入 **Workers 和 Pages** -> **创建** -> **克隆 Git 存储库**。
 3. 在 **Git 存储库 URL** 输入框中，直接填入本项目的 Git 地址：
-   `https://github.com/meme-lau/WeatherKit.git`
+   `https://github.com/meme-lau/weatherkit-worker.git`
 4. 点击 **下一步**，Cloudflare 将在云端自动完成打包构建并为您分配部署的 Workers 域名。
 
 ---
@@ -38,8 +38,8 @@
 
 #### 2. 克隆项目与安装依赖
 ```bash
-git clone https://github.com/meme-lau/WeatherKit.git
-cd WeatherKit
+git clone https://github.com/meme-lau/weatherkit-worker.git
+cd weatherkit-worker
 npm install
 ```
 
@@ -60,34 +60,17 @@ npm run deploy:wrangler
 
 ---
 
-## 📥 代理配置中心与一键下载
+## 📥 代理配置一键导入
 
-部署成功后，您有以下两种方式获取或导入代理配置：
-
-### 方式一：访问可视化配置中心（推荐，最便捷）
-直接在浏览器中访问您部署的 Worker 根路径地址：
+部署成功后，**直接在浏览器中访问您部署的 Worker 根路径地址**即可：
 `https://<your-worker-host>/`
 
-该页面提供了一个极其精美的可视化界面，您可以：
-- **一键导入**：点击“一键导入”按钮，将自动唤起您的代理客户端（Surge, Loon, Stash, Shadowrocket）并自动填充模块/插件的安装。
-- **一键复制**：点击“复制链接”将包含您当前部署域名的配置文件链接写入剪贴板。
+该页面提供了可视化配置中心，您可以：
+- **一键导入**：点击“一键导入”按钮，将自动唤起您的网络代理客户端（Surge, Loon, Stash, Shadowrocket, Egern）并自动完成模块或插件的安装。
+- **一键复制**：点击“复制链接”将自动生成并复制包含您当前部署域名的配置文件链接。
 - **配置下载**：直接点击“下载配置”将对应的配置文件保存到本地。
 
----
-
-### 方式二：手动配置订阅链接
-
-可以直接在各大代理客户端中作为 URL 订阅或下载以下地址：
-
-| 代理工具 | 订阅/下载地址路径 |
-| :--- | :--- |
-| **Surge** | `https://<your-worker-host>/conf/config.sgmodule` |
-| **Loon** | `https://<your-worker-host>/conf/config.plugin` |
-| **Shadowrocket** | `https://<your-worker-host>/conf/config.srmodule` |
-| **Stash** | `https://<your-worker-host>/conf/config.stoverride` |
-| **Egern** | `https://<your-worker-host>/conf/config.yaml` |
-
-> 💡 **提示**：服务端会自动把下载文件内容中的重定向域名替换为您当前请求的 `<your-worker-host>` 域名，实现无需手动修改配置的极简部署流。
+> 💡 **提示**：当客户端请求配置链接时，服务端会自动把下载文件内容中的重定向域名占位符替换为您当前请求的 `<your-worker-host>` 域名，实现无需手动修改配置的极简部署流程。
 
 ---
 
