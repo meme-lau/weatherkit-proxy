@@ -6,10 +6,20 @@ import configs from "./function/configs.mjs";
 import database from "./function/database.mjs";
 import parseWeatherKitURL from "./function/parseWeatherKitURL.mjs";
 import setENV from "./function/setENV.mjs";
+import { renderIndex } from "./function/indexPage.mjs";
 import { Response } from "./process/Response.mjs";
 import { fetch } from "./utils/index.mjs";
 
 const app = new Hono();
+
+// 根路径路由，返回配置列表及一键导入可视化页面
+app.get("/", async c => {
+    const host = c.req.header("host");
+    const protocol = c.req.url.startsWith("https") ? "https" : "http";
+    const htmlContent = renderIndex(host, protocol);
+    c.header("Content-Type", "text/html; charset=utf-8");
+    return c.body(htmlContent);
+});
 
 // 配置下载路由，将占位域名替换为当前部署的域名
 app.get("/conf/:filename", async c => {
