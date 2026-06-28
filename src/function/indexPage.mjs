@@ -1067,6 +1067,14 @@ export function renderIndex(host, protocol) {
                                 <span class="form-desc" style="margin-top:0.2rem">使用选定的第三方数据源替换 10 天逐小时预报（数据包较大，会增加响应耗时与 API 消耗）。</span>
                             </label>
                         </div>
+
+                        <div class="checkbox-group">
+                            <input class="checkbox-input" type="checkbox" id="edgeCache">
+                            <label class="checkbox-label" for="edgeCache">
+                                <strong>[边缘节点缓存] 启用缓存</strong><br>
+                                <span class="form-desc" style="margin-top:0.2rem">使用 Cloudflare 边缘缓存提升二次请求的速度。默认关闭，请根据需要开启。</span>
+                            </label>
+                        </div>
                     </div>
 
                     <button class="btn btn-primary btn-next" id="saveConfigBtn">保存并应用配置</button>
@@ -1175,6 +1183,7 @@ export function renderIndex(host, protocol) {
         const unitsReplace = document.getElementById("unitsReplace");
         const replaceDaily = document.getElementById("replaceDaily");
         const replaceHourly = document.getElementById("replaceHourly");
+        const edgeCache = document.getElementById("edgeCache");
         
         // 选项卡与控制
         const stepConfig = document.getElementById("stepConfig");
@@ -1218,7 +1227,8 @@ export function renderIndex(host, protocol) {
                 allowOverRange: false,
                 replaceWhenCurrentChange: false,
                 replaceDaily: false,
-                replaceHourly: false
+                replaceHourly: false,
+                edgeCache: false
             }
         };
 
@@ -1249,6 +1259,7 @@ export function renderIndex(host, protocol) {
                 presetData.Advanced.replaceWhenCurrentChange = replaceWhenCurrentChange.checked;
                 presetData.Advanced.replaceDaily = replaceDaily.checked;
                 presetData.Advanced.replaceHourly = replaceHourly.checked;
+                presetData.Advanced.edgeCache = edgeCache.checked;
             }
         }
 
@@ -1298,6 +1309,7 @@ export function renderIndex(host, protocol) {
                 replaceWhenCurrentChange.checked = presetData.Advanced.replaceWhenCurrentChange;
                 replaceDaily.checked = presetData.Advanced.replaceDaily;
                 replaceHourly.checked = presetData.Advanced.replaceHourly;
+                edgeCache.checked = presetData.Advanced.edgeCache;
             }
         }
 
@@ -1306,6 +1318,7 @@ export function renderIndex(host, protocol) {
             let config = {};
             if (currentPreset === "Caiyun") {
                 config = {
+                    EdgeCache: false,
                     Weather: { Provider: "ColorfulClouds" },
                     NextHour: { Provider: "ColorfulClouds" },
                     AirQuality: {
@@ -1323,6 +1336,7 @@ export function renderIndex(host, protocol) {
                 };
             } else if (currentPreset === "QWeather") {
                 config = {
+                    EdgeCache: false,
                     Weather: { Provider: "QWeather" },
                     NextHour: { Provider: "QWeather" },
                     AirQuality: {
@@ -1343,6 +1357,7 @@ export function renderIndex(host, protocol) {
                 };
             } else {
                 config = {
+                    EdgeCache: presetData.Advanced.edgeCache,
                     Weather: { 
                         Provider: presetData.Advanced.weatherProvider,
                         Replace: presetData.Advanced.weatherReplace ? presetData.Advanced.weatherReplace.split(",").map(s => s.trim()).filter(Boolean) : undefined,
@@ -1409,6 +1424,7 @@ export function renderIndex(host, protocol) {
                                 presetData.Advanced.allowOverRange === true ||
                                 presetData.Advanced.replaceDaily === true ||
                                 presetData.Advanced.replaceHourly === true ||
+                                presetData.Advanced.edgeCache === true ||
                                 presetData.Advanced.calculateAlgorithm !== "WAQI_InstantCast_CN" ||
                                 (presetData.Advanced.weatherReplace !== "" && presetData.Advanced.weatherReplace !== "CN") ||
                                 !isDefaultIndexReplace ||
@@ -1596,7 +1612,7 @@ export function renderIndex(host, protocol) {
             pollutantsProvider, indexProvider, yesterdayProvider, calculateAlgorithm, 
             forceCNPrimaryPollutants, allowOverRange, replaceWhenCurrentChange,
             weatherReplace, yesterdayPollutantsProvider, pollutantsUnitsMode,
-            indexReplace, unitsReplace, replaceDaily, replaceHourly
+            indexReplace, unitsReplace, replaceDaily, replaceHourly, edgeCache
         ];
         inputs.forEach(input => {
             if (input) {
@@ -1640,6 +1656,7 @@ export function renderIndex(host, protocol) {
             presetData.Advanced.calculateAlgorithm = decoded.AirQuality?.Calculate?.Algorithm || "WAQI_InstantCast_CN";
             presetData.Advanced.replaceDaily = decoded.Weather?.ReplaceDaily === true;
             presetData.Advanced.replaceHourly = decoded.Weather?.ReplaceHourly === true;
+            presetData.Advanced.edgeCache = decoded.EdgeCache === true;
 
             const indexReplaceArr = decoded.AirQuality?.Current?.Index?.Replace ?? ["HJ6332012"];
             presetData.Advanced.indexReplace = indexReplaceArr[0] || "HJ6332012";
@@ -1672,6 +1689,7 @@ export function renderIndex(host, protocol) {
                                       !presetData.Advanced.allowOverRange &&
                                       !presetData.Advanced.replaceDaily &&
                                       !presetData.Advanced.replaceHourly &&
+                                      !presetData.Advanced.edgeCache &&
                                       presetData.Advanced.calculateAlgorithm === "WAQI_InstantCast_CN";
 
             if (isQWeather && isDefaultAdvanced) {

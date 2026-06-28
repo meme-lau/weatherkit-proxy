@@ -352,4 +352,12 @@ export interface Settings {
      * @defaultValue "WARN"
      */
     LogLevel?: "OFF" | "ERROR" | "WARN" | "INFO" | "DEBUG" | "ALL";
+    /**
+     * [边缘缓存] 启用边缘缓存
+     *
+     * 启用 Cloudflare 边缘缓存提升二次请求的速度。
+     *
+     * @defaultValue false
+     */
+    EdgeCache?: boolean;
 }

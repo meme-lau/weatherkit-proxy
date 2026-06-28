@@ -46,7 +46,11 @@ export async function fetch(resource, options = {}) {
     let cacheKey;
     let cache;
 
-    if (isCF && isThirdPartyWeather) {
+    const store = requestContext.getStore();
+    const settings = store && typeof store === "object" && "Settings" in store ? store.Settings : undefined;
+    const isEdgeCacheEnabled = settings?.EdgeCache === true;
+
+    if (isCF && isThirdPartyWeather && isEdgeCacheEnabled) {
         try {
             cache = globalThis.caches.default;
             cacheKey = new Request(url, { method: "GET" });
@@ -125,7 +129,7 @@ export async function fetch(resource, options = {}) {
                     },
                 });
                 const cachePromise = cache.put(cacheKey, cfResponse).catch(putErr => console.error("Cache put error:", putErr));
-                const ctx = requestContext.getStore() || globalThis.ctx;
+                const ctx = store?.executionCtx || store || globalThis.ctx;
                 if (ctx && typeof ctx.waitUntil === "function") {
                     ctx.waitUntil(cachePromise);
                 }

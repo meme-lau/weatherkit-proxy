@@ -10,6 +10,7 @@ export default {
                 Calculate: { Algorithm: "WAQI_InstantCast_CN", AllowOverRange: true },
             },
             API: { QWeather: { Token: null, Host: "devapi.qweather.com" }, ColorfulClouds: { Token: null } },
+            EdgeCache: false,
         },
         Configs: {
             Availability: {

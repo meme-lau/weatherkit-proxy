@@ -76,7 +76,11 @@ function parseQueryArguments(query = {}) {
 }
 
 async function handleWeatherRequest(c, queryArguments = {}) {
-    return requestContext.run(c.executionCtx, async () => {
+    const store = {
+        executionCtx: c.executionCtx,
+        Settings: null,
+    };
+    return requestContext.run(store, async () => {
         if (c.executionCtx) {
             globalThis.ctx = c.executionCtx;
         }
@@ -91,6 +95,7 @@ async function handleWeatherRequest(c, queryArguments = {}) {
 
         // 提前解析 URL 参数，用于并发预取第三方数据
         const { Settings, Caches, Configs } = setENV("iRingo", "WeatherKit", database, finalArguments);
+        store.Settings = Settings;
         const parameters = parseWeatherKitURL(url);
         const enviroments = {
             colorfulClouds: new ColorfulClouds(parameters, Settings?.API?.ColorfulClouds?.Token || "Y2FpeXVuX25vdGlmeQ=="),
