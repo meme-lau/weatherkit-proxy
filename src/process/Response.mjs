@@ -366,8 +366,14 @@ async function InjectForecastNextHour(forecastNextHour, Settings, enviroments, p
         }
     }
     if (newForecastNextHour?.metadata) {
-        newForecastNextHour.metadata = { ...forecastNextHour?.metadata, ...newForecastNextHour.metadata };
-        forecastNextHour = { ...forecastNextHour, ...newForecastNextHour };
+        const isClear = newForecastNextHour?.condition?.[0]?.forecastToken === "CLEAR" || newForecastNextHour?.condition?.length === 0;
+        if (isClear) {
+            Console.info("InjectForecastNextHour", "未来一小时无降水，跳过注入并清除该模块（隐藏空白卡片）");
+            forecastNextHour = undefined;
+        } else {
+            newForecastNextHour.metadata = { ...forecastNextHour?.metadata, ...newForecastNextHour.metadata };
+            forecastNextHour = { ...forecastNextHour, ...newForecastNextHour };
+        }
     }
     Console.info("✅ InjectForecastNextHour");
     return forecastNextHour;
