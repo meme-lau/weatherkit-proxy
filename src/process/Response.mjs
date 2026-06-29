@@ -607,9 +607,14 @@ async function InjectComparison(airQuality, currentIndexProvider, Settings, Cach
     };
     const qweatherComparison = async (currentCategoryIndex, pollutantsToAirQuality) => {
         Console.info("☑️ qweatherComparison", `currentCategoryIndex: ${currentCategoryIndex}`);
+        const setQWeatherCache = qweatherCache => {
+            Caches.qweather = qweatherCache;
+            Storage.setItem("@iRingo.WeatherKit.Caches", { ...Caches, qweather: qweatherCache });
+        };
 
+        const locationsGrid = await QWeather.GetLocationsGrid(Caches?.qweather, setQWeatherCache);
         const { latitude, longitude } = enviroments.qWeather;
-        const locationInfo = QWeather.GetLocationInfo(undefined, latitude, longitude);
+        const locationInfo = QWeather.GetLocationInfo(locationsGrid, latitude, longitude);
 
         const yesterdayQWeather = await enviroments.qWeather.YesterdayAirQuality(locationInfo);
 

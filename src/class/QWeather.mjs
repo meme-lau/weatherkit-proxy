@@ -1,6 +1,5 @@
 import AirQuality from "../class/AirQuality.mjs";
 import { Console, fetch, time } from "../utils/index.mjs";
-import locationsGrid from "../utils/qweather-china-city-list-grid.mjs";
 import ForecastNextHour from "./ForecastNextHour.mjs";
 import Weather from "./Weather.mjs";
 
@@ -51,12 +50,52 @@ export default class QWeather {
         },
     };
 
+    static async GetLocationsGrid(qweatherCache, setCache) {
+        Console.info("☑️ GetLocationsGrid");
+        const locationsGrid = qweatherCache?.locationsGrid;
+        // cache within 30 days
+        if (locationsGrid?.lastUpdated && locationsGrid.lastUpdated + 30 * 24 * 60 * 60 * 1000 > Date.now()) {
+            Console.info("✅ GetLocationsGrid", "Cache found!");
+            return locationsGrid.data;
+        }
+
+        Console.info("⚠️ GetLocationsGrid", "Cache not found or stale, fetching...");
+        try {
+            const response = await fetch({
+                headers: locationsGrid?.etag ? { "If-None-Match": locationsGrid?.etag } : undefined,
+                url: "https://raw.githubusercontent.com/NSRingo/QWeather-Location-Grid/refs/heads/main/data/qweather-china-city-list-grid.json",
+            });
+
+            if (response.status === 304) {
+                Console.info("✅ GetLocationsGrid", "Cache not modified");
+                setCache({ ...qweatherCache, locationsGrid: { ...locationsGrid, lastUpdated: Date.now() } });
+                return locationsGrid.data;
+            }
+
+            const newLocationsGrid = JSON.parse(response.body);
+            const etag = typeof response.headers?.get === "function" ? response.headers.get("ETag") : response.headers?.etag || response.headers?.ETag;
+            setCache({
+                ...qweatherCache,
+                locationsGrid: { etag, lastUpdated: Date.now(), data: newLocationsGrid },
+            });
+            Console.info("✅ GetLocationsGrid");
+            return newLocationsGrid;
+        } catch (error) {
+            Console.error("GetLocationsGrid error:", error);
+            return locationsGrid?.data || null;
+        }
+    }
+
     // Codes by Claude AI
-    static GetLocationInfo(providedGrid, latitude, longitude) {
+    static GetLocationInfo(locationsGrid, latitude, longitude) {
         Console.info("☑️ GetLocationInfo");
 
-        const targetGrid = providedGrid || locationsGrid;
-        const { gridSize, grid } = targetGrid;
+        if (!locationsGrid) {
+            Console.warn("GetLocationInfo", "No locationsGrid provided");
+            return null;
+        }
+
+        const { gridSize, grid } = locationsGrid;
 
         // Haversine距离计算
         const distance = (lat1, lng1, lat2, lng2) => {

@@ -158,7 +158,11 @@ async function handleWeatherRequest(c, queryArguments = {}) {
                 if (comparisonProvider === "ColorfulCloudsCN" || comparisonProvider === "ColorfulCloudsUS") {
                     preFetched.yesterdayHourly = enviroments.colorfulClouds.prefetchYesterdayHourly().catch(() => undefined);
                 } else if (comparisonProvider === "QWeather") {
-                    const locationInfo = QWeather.GetLocationInfo(undefined, parameters.latitude, parameters.longitude);
+                    const setQWeatherCache = qweatherCache => {
+                        Caches.qweather = qweatherCache;
+                    };
+                    const locationsGrid = await QWeather.GetLocationsGrid(Caches?.qweather, setQWeatherCache);
+                    const locationInfo = QWeather.GetLocationInfo(locationsGrid, parameters.latitude, parameters.longitude);
                     preFetched.yesterdayHourly = enviroments.qWeather.prefetchYesterdayAirQuality(locationInfo).catch(() => undefined);
                 }
             }

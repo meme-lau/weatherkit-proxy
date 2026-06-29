@@ -198,12 +198,12 @@ export default class ForecastNextHour {
         const Length = Math.min(71, minutes.length);
 
         // 根据当前段内每分钟的 conditions 频次，判定最具代表性的条件
-        const getRepresentativeCondition = (counts) => {
+        const getRepresentativeCondition = counts => {
             const heavyRain = (counts["HEAVY_RAIN"] || 0) + (counts["HEAVY_SNOW"] || 0);
             const moderateRain = (counts["RAIN"] || 0) + (counts["SNOW"] || 0);
             const lightRain = (counts["DRIZZLE"] || 0) + (counts["FLURRIES"] || 0);
             const possibleRain = (counts["POSSIBLE_DRIZZLE"] || 0) + (counts["POSSIBLE_FLURRIES"] || 0);
-            
+
             const totalMinutes = Object.values(counts).reduce((a, b) => a + b, 0);
             // 阈值：大雨至少需要累计 12 分钟（总时长的 20%），但若该段很短则按 20% 折算，且最少 3 分钟
             const threshold = Math.max(3, Math.min(12, Math.round(totalMinutes * 0.2)));
@@ -270,7 +270,7 @@ export default class ForecastNextHour {
                             precipitationChance: minute.precipitationChance,
                             precipitationIntensity: minute.precipitationIntensity,
                             maxCondition: "",
-                            clear: minute.clear
+                            clear: minute.clear,
                         };
                     } else {
                         // 条件相同，更新最大值
