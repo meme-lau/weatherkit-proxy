@@ -3,6 +3,7 @@
     "main": "src/Hono.js",
     "compatibility_date": "2025-11-21",
     "compatibility_flags": ["nodejs_compat"],
+    "minify": true,
     "observability": {
         "enabled": false,
         "head_sampling_rate": 1,
