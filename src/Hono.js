@@ -8,7 +8,7 @@ import { renderIndex } from "./function/indexPage.mjs";
 import parseWeatherKitURL from "./function/parseWeatherKitURL.mjs";
 import buildSettings from "./function/buildSettings.mjs";
 import { Response } from "./process/Response.mjs";
-import { Lodash as _, fetch, requestContext } from "./utils/index.mjs";
+import { set, merge, fetch, requestContext } from "./utils/index.mjs";
 
 function getCSTDateString() {
     const d = new Date(Date.now() + 8 * 60 * 60 * 1000);
@@ -75,7 +75,7 @@ function parseQueryArguments(query = {}) {
     const args = {};
     for (const [key, value] of Object.entries(query)) {
         if (key.includes(".")) {
-            _.set(args, key, value);
+            set(args, key, value);
         } else {
             args[key] = value;
         }
@@ -103,7 +103,7 @@ async function handleWeatherRequest(c, queryArguments = {}) {
         // 解析请求 Query 里的扁平参数，并与已有的 queryArguments 进行合并
         const urlArguments = parseQueryArguments(c.req.query());
         const finalArguments = {};
-        _.merge(finalArguments, queryArguments, urlArguments);
+        merge(finalArguments, queryArguments, urlArguments);
 
         // 提前解析 URL 参数，用于并发预取第三方数据
         const { Settings, Configs } = buildSettings(database, finalArguments);

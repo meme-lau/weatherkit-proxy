@@ -4,8 +4,14 @@ function toPath(value) {
     return value.replace(/\[(\d+)\]/g, ".$1").split(".").filter(Boolean);
 }
 
+function isPlainObject(value) {
+    if (value === null || typeof value !== "object") return false;
+    const proto = Object.getPrototypeOf(value);
+    return proto === null || proto === Object.prototype;
+}
+
 // 深度合并多个对象到 target（数组做浅拷贝，避免共享引用）
-function merge(target, ...sources) {
+export function merge(target, ...sources) {
     if (target === null || target === undefined) return target;
     for (const source of sources) {
         if (source === null || source === undefined) continue;
@@ -15,7 +21,6 @@ function merge(target, ...sources) {
             if (isPlainObject(src) && isPlainObject(dst)) {
                 target[key] = merge(dst, src);
             } else if (Array.isArray(src)) {
-                // 数组做浅拷贝，避免与 source 共享引用
                 target[key] = src.length > 0 ? [...src] : (dst !== undefined ? dst : []);
             } else if (src !== undefined) {
                 target[key] = src;
@@ -25,21 +30,15 @@ function merge(target, ...sources) {
     return target;
 }
 
-function isPlainObject(value) {
-    if (value === null || typeof value !== "object") return false;
-    const proto = Object.getPrototypeOf(value);
-    return proto === null || proto === Object.prototype;
-}
-
 // 按点路径读取对象属性
-function get(object, path, defaultValue) {
+export function get(object, path, defaultValue) {
     const keys = toPath(path);
     const result = keys.reduce((acc, key) => Object(acc)[key], object);
     return result === undefined ? defaultValue : result;
 }
 
 // 按点路径写入对象属性
-function set(object, path, value) {
+export function set(object, path, value) {
     const keys = toPath(path);
     keys.slice(0, -1).reduce((acc, key, i) => {
         if (Object(acc[key]) !== acc[key]) {
@@ -49,5 +48,3 @@ function set(object, path, value) {
     }, object)[keys[keys.length - 1]] = value;
     return object;
 }
-
-export const Lodash = { merge, get, set };

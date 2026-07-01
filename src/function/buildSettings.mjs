@@ -1,4 +1,4 @@
-import { Console, Lodash as _ } from "../utils/index.mjs";
+import { Console, get, set, merge } from "../utils/index.mjs";
 
 /**
  * 将字符串值转换为数字（如果是纯数字字符串）
@@ -47,8 +47,8 @@ function traverseObject(o, c) {
  * @param {string} path - 点分隔路径，如 "Weather.Replace"
  */
 function string2array(Settings, path) {
-    const setting = _.get(Settings, path);
-    if (!Array.isArray(setting)) _.set(Settings, path, setting ? [setting] : []);
+    const setting = get(Settings, path);
+    if (!Array.isArray(setting)) set(Settings, path, setting ? [setting] : []);
 }
 
 /**
@@ -63,7 +63,7 @@ function string2array(Settings, path) {
  */
 export default function buildSettings(database, queryArguments = {}) {
     // 1. 从 database 深拷贝合并默认 Settings（Default → WeatherKit）
-    const Settings = _.merge(
+    const Settings = merge(
         {},
         database?.Default?.Settings,
         database?.WeatherKit?.Settings,
@@ -71,7 +71,7 @@ export default function buildSettings(database, queryArguments = {}) {
 
     // 2. 合并请求级参数（请求参数优先级最高）
     if (queryArguments && typeof queryArguments === "object") {
-        _.merge(Settings, queryArguments);
+        merge(Settings, queryArguments);
     }
 
     // 3. 规范化需要为数组的字段
@@ -98,7 +98,7 @@ export default function buildSettings(database, queryArguments = {}) {
     });
 
     // 5. 构建 Configs（深拷贝合并，并将 Locale/i18n 转为 Map）
-    const Configs = _.merge(
+    const Configs = merge(
         {},
         database?.Default?.Configs,
         database?.WeatherKit?.Configs,
