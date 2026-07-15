@@ -679,7 +679,7 @@ export function renderIndex(host, protocol) {
                                 <option value="CN25">国标2025草案 (HJ633 2025)</option>
                                 <option value="None">不转换</option>
                             </select>
-                            <span class="form-desc">选定一个标准后，今日指数 / 昨日指数 / 算法 / 污染物数据源将全部自动跟随。彩云国标/美标使用现成 AQI；欧盟/德国/国标草案由本地从污染物浓度计算。</span>
+                            <span class="form-desc">选定一个标准后，今日指数 / 昨日指数 / 算法 / 替换目标 / 单位转换将自动跟随。彩云国标/美标使用现成 AQI；欧盟/德国/国标草案由本地从污染物浓度计算，数据源沿用当前选择。</span>
                         </div>
 
                         <div class="form-group">
@@ -688,7 +688,7 @@ export function renderIndex(host, protocol) {
                                 <option value="Caiyun" selected>彩云天气</option>
                                 <option value="QWeather">和风天气</option>
                             </select>
-                            <span class="form-desc">随所选标准自动推荐，可手动覆盖。和风会按地区自行选择国标/美标/欧盟。</span>
+                            <span class="form-desc">污染物数据的来源。国标/美标会随标准自动设为彩云；欧盟/德国/国标草案为本地计算，此处可保持彩云或和风。和风会按地区自行选择国标/美标/欧盟。</span>
                         </div>
 
                         <div class="form-group">
@@ -1056,17 +1056,20 @@ export function renderIndex(host, protocol) {
             return decodeURIComponent(escape(atob(s)));
         }
 
-        // AQI 标准 → { 本地算法, 彩云现成AQI, 和风现成AQI, 推荐数据源, 推荐替换目标, 推荐单位转换 }
+        // AQI 标准 → { 本地算法, 彩云现成AQI, 和风现成AQI, 推荐数据源, 推荐替换目标, 推荐单位转换, 是否锁定数据源 }
         // caiyunVendor / qweatherVendor 为 null 表示该数据源无此标准的现成 AQI，需本地计算。
+        // lockSource：仅当所选数据源能直接提供该标准的「现成 AQI」时才自动切换数据源
+        // （国标/美标 → 彩云）；欧盟/德国/国标草案是本地从污染物浓度计算，彩云与和风都能提供
+        // 污染物，故不强制切数据源，保留用户上一次的选择。
         // recIndexReplace / recUnitsReplace：选定标准后「替换目标」「单位转换」自动跟随的取值，
         // 让「选一个标准，全套生效」覆盖到这两个高级项（仍可在折叠区内手动覆盖）。
         const AQI_STANDARDS = {
-            CN:   { algorithm: "WAQI_InstantCast_CN",          caiyunVendor: "ColorfulCloudsCN", qweatherVendor: "QWeather", recSource: "Caiyun", recIndexReplace: "HJ6332012",   recUnitsReplace: "HJ6332012" },
-            US:   { algorithm: "WAQI_InstantCast_US",          caiyunVendor: "ColorfulCloudsUS", qweatherVendor: "QWeather", recSource: "Caiyun", recIndexReplace: "EPA_NowCast", recUnitsReplace: "EPA_NowCast" },
-            EU:   { algorithm: "EU_EAQI",                      caiyunVendor: null,               qweatherVendor: "QWeather", recSource: "QWeather", recIndexReplace: "EU.EAQI",     recUnitsReplace: "EU.EAQI" },
-            UBA:  { algorithm: "UBA",                          caiyunVendor: null,               qweatherVendor: null,       recSource: "Caiyun", recIndexReplace: "UBA",         recUnitsReplace: "UBA" },
-            CN25: { algorithm: "WAQI_InstantCast_CN_25_DRAFT", caiyunVendor: null,               qweatherVendor: null,       recSource: "Caiyun", recIndexReplace: "HJ6332012",   recUnitsReplace: "HJ6332012" },
-            None: { algorithm: "None",                        caiyunVendor: null,               qweatherVendor: null,       recSource: "Caiyun", recIndexReplace: "HJ6332012",   recUnitsReplace: "None" }
+            CN:   { algorithm: "WAQI_InstantCast_CN",          caiyunVendor: "ColorfulCloudsCN", qweatherVendor: "QWeather", recSource: "Caiyun", recIndexReplace: "HJ6332012",   recUnitsReplace: "HJ6332012",   lockSource: true },
+            US:   { algorithm: "WAQI_InstantCast_US",          caiyunVendor: "ColorfulCloudsUS", qweatherVendor: "QWeather", recSource: "Caiyun", recIndexReplace: "EPA_NowCast", recUnitsReplace: "EPA_NowCast", lockSource: true },
+            EU:   { algorithm: "EU_EAQI",                      caiyunVendor: null,               qweatherVendor: "QWeather", recSource: "Caiyun", recIndexReplace: "EU.EAQI",     recUnitsReplace: "EU.EAQI",     lockSource: false },
+            UBA:  { algorithm: "UBA",                          caiyunVendor: null,               qweatherVendor: null,       recSource: "Caiyun", recIndexReplace: "UBA",         recUnitsReplace: "UBA",         lockSource: false },
+            CN25: { algorithm: "WAQI_InstantCast_CN_25_DRAFT", caiyunVendor: null,               qweatherVendor: null,       recSource: "Caiyun", recIndexReplace: "HJ6332012",   recUnitsReplace: "HJ6332012",   lockSource: false },
+            None: { algorithm: "None",                        caiyunVendor: null,               qweatherVendor: null,       recSource: "Caiyun", recIndexReplace: "HJ6332012",   recUnitsReplace: "None",        lockSource: false }
         };
 
         // 算法名 → 标准（反向映射用）
@@ -1430,12 +1433,12 @@ export function renderIndex(host, protocol) {
             }
         });
 
-        // 「标准联动」：切换 AQI 标准时，数据源、替换目标、单位转换一并跟随该标准的推荐值
-        // （国标/美标/德国/国标草案 → 彩云；欧盟 → 和风）。用户随后仍可在折叠区手动覆盖。
+        // 「标准联动」：切换 AQI 标准时，替换目标、单位转换一并跟随该标准；
+        // 数据源仅当该标准能用现成 AQI（lockSource）时才切换，本地算的标准保留用户当前数据源。
         if (aqiStandard) {
             const followStandard = () => {
                 const std = AQI_STANDARDS[aqiStandard.value] || AQI_STANDARDS.CN;
-                if (aqiSource.value !== std.recSource) aqiSource.value = std.recSource;
+                if (std.lockSource && aqiSource.value !== std.recSource) aqiSource.value = std.recSource;
                 if (indexReplace.value !== std.recIndexReplace) indexReplace.value = std.recIndexReplace;
                 if (unitsReplace.value !== std.recUnitsReplace) unitsReplace.value = std.recUnitsReplace;
             };
