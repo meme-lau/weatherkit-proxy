@@ -257,6 +257,23 @@ export function renderIndex(host, protocol) {
             cursor: pointer;
         }
 
+        .aqi-advanced {
+            margin: 1rem 0 1.5rem;
+            padding: 0.75rem 1rem 0.25rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .aqi-advanced > summary {
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .aqi-advanced[open] > summary {
+            margin-bottom: 1.25rem;
+        }
+
         .checkbox-input {
             width: 18px;
             height: 18px;
@@ -653,56 +670,25 @@ export function renderIndex(host, protocol) {
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="indexProvider">[今日空气指数] 数据源</label>
-                            <select class="form-select" id="indexProvider">
-                                <option value="ColorfulCloudsCN" selected>彩云天气（国标，12年2月版）</option>
-                                <option value="Calculate">iRingo内置算法</option>
-                                <option value="ColorfulCloudsUS">彩云天气（美标，18年9月版）</option>
-                                <option value="QWeather">和风天气（国标，12年2月版）</option>
-                            </select>
-                            <span class="form-desc">使用选定的数据源填补和替换空气质量指数。</span>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="yesterdayProvider">[昨日空气指数] 数据源</label>
-                            <select class="form-select" id="yesterdayProvider">
-                                <option value="ColorfulCloudsCN" selected>彩云天气（国标，12年2月版）</option>
-                                <option value="Calculate">iRingo内置算法</option>
-                                <option value="ColorfulCloudsUS">彩云天气（美标，18年9月版）</option>
-                                <option value="QWeather">和风天气（国标，12年2月版）</option>
-                            </select>
-                            <span class="form-desc">用来和今日空气质量指数对比的数据。</span>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="pollutantsProvider">[今日污染物] 数据源</label>
-                            <select class="form-select" id="pollutantsProvider">
-                                <option value="ColorfulClouds" selected>彩云天气</option>
-                                <option value="QWeather">和风天气</option>
-                            </select>
-                            <span class="form-desc">使用选定的数据源填补污染物数据。</span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="calculateAlgorithm">[iRingo内置算法] 算法</label>
-                            <select class="form-select" id="calculateAlgorithm">
-                                <option value="WAQI_InstantCast_CN" selected>国标InstantCast (HJ 633—2012)</option>
-                                <option value="WAQI_InstantCast_CN_25_DRAFT">国标InstantCast (HJ 633 2025年草案)</option>
-                                <option value="WAQI_InstantCast_US">美标InstantCast (EPA-454/B-24-002)</option>
-                                <option value="EU_EAQI">欧盟EAQI (ETC HE Report 2024/17)</option>
-                                <option value="UBA">德国LQI (FB001846)</option>
+                            <label class="form-label" for="aqiStandard">[空气质量] AQI 标准</label>
+                            <select class="form-select" id="aqiStandard">
+                                <option value="CN" selected>中国国标 (HJ6332012)</option>
+                                <option value="US">美国EPA (EPA_NowCast)</option>
+                                <option value="EU">欧盟EAQI (EU.EAQI)</option>
+                                <option value="UBA">德国LQI (UBA)</option>
+                                <option value="CN25">国标2025草案 (HJ633 2025)</option>
                                 <option value="None">不转换</option>
                             </select>
-                            <span class="form-desc">当今日/昨日空气指数数据源选择为“内置算法”时，用于污染物数据的本地计算公式。</span>
+                            <span class="form-desc">选定一个标准后，今日指数 / 昨日指数 / 算法 / 污染物数据源将全部自动跟随。彩云国标/美标使用现成 AQI；欧盟/德国/国标草案由本地从污染物浓度计算。</span>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="yesterdayPollutantsProvider">[昨日污染物] 数据源</label>
-                            <select class="form-select" id="yesterdayPollutantsProvider">
-                                <option value="ColorfulCloudsCN" selected>彩云天气</option>
+                            <label class="form-label" for="aqiSource">[空气质量] 数据源</label>
+                            <select class="form-select" id="aqiSource">
+                                <option value="Caiyun" selected>彩云天气</option>
                                 <option value="QWeather">和风天气</option>
                             </select>
-                            <span class="form-desc">为内置算法提供污染物数据，计算出昨日的空气质量指数。</span>
+                            <span class="form-desc">随所选标准自动推荐，可手动覆盖。和风会按地区自行选择国标/美标/欧盟。</span>
                         </div>
 
                         <div class="form-group">
@@ -711,80 +697,92 @@ export function renderIndex(host, protocol) {
                             <span class="form-desc">使用逗号分隔的国家码。只有当请求天气位于此列表时，才会替换天气数据。留空默认为 CN。</span>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="indexReplace">[今日空气指数] 替换目标</label>
-                            <select class="form-select" id="indexReplace">
-                                <option value="HJ6332012" selected>中国AQI (HJ6332012)</option>
-                                <option value="EPA_NowCast">美国AQI (EPA_NowCast)</option>
-                                <option value="EU.EAQI">欧盟EAQI (EU.EAQI)</option>
-                                <option value="UBA">德国LQI (UBA)</option>
-                                <option value="IE.AQIH">爱尔兰AQIH (IE.AQIH)</option>
-                                <option value="AT.AQI">奥地利AQI (AT.AQI)</option>
-                                <option value="BE.BelAQI">比利时BelAQI (BE.BelAQI)</option>
-                                <option value="FR.ATMO">法国IQA (FR.ATMO)</option>
-                                <option value="KR.CAI">韩国CAI (KR.CAI)</option>
-                                <option value="CA.AQHI">加拿大AQHI (CA.AQHI)</option>
-                                <option value="CZ.AQI">捷克AQI (CZ.AQI)</option>
-                                <option value="NL.LKI">荷兰LKI (NL.LKI)</option>
-                                <option value="ICARS">墨西哥ICARS (ICARS)</option>
-                                <option value="CH.KBI">瑞士KBI (CH.KBI)</option>
-                                <option value="ES.MITECO">西班牙ICA (ES.MITECO)</option>
-                                <option value="SG.NEA">新加坡PSI (SG.NEA)</option>
-                                <option value="NAQI">印度NAQI (NAQI)</option>
-                                <option value="DAQI">英国DAQI (DAQI)</option>
-                            </select>
-                            <span class="form-desc">替换指定标准的空气质量指数。</span>
-                        </div>
+                        <details class="aqi-advanced">
+                            <summary class="form-label" style="cursor:pointer;user-select:none">高级 AQI 选项（通常无需调整）</summary>
 
-                        <div class="form-group">
-                            <label class="form-label" for="unitsReplace">[今日污染物 - 单位转换] 替换目标</label>
-                            <select class="form-select" id="unitsReplace">
-                                <option value="None" selected>不转换</option>
-                                <option value="HJ6332012">中国AQI (HJ6332012)</option>
-                                <option value="EPA_NowCast">美国AQI (EPA_NowCast)</option>
-                                <option value="EU.EAQI">欧盟EAQI (EU.EAQI)</option>
-                                <option value="UBA">德国LQI (UBA)</option>
-                            </select>
-                            <span class="form-desc">转换污染物的单位，方便与空气质量标准比对。</span>
-                        </div>
+                            <div class="checkbox-group">
+                                <input class="checkbox-input" type="checkbox" id="forceCalculate">
+                                <label class="checkbox-label" for="forceCalculate">
+                                    <strong>[空气质量] 强制本地计算</strong><br>
+                                    <span class="form-desc" style="margin-top:0.2rem">不使用数据源的现成 AQI，改由本地从污染物浓度按所选标准重新计算（欧盟/德国/国标草案始终本地计算）。</span>
+                                </label>
+                            </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="pollutantsUnitsMode">[今日污染物 - 单位转换] 模式</label>
-                            <select class="form-select" id="pollutantsUnitsMode">
-                                <option value="Scale" selected>与空气质量标准的要求相同</option>
-                                <option value="ugm3">除非标准要求，都转为µg/m³</option>
-                                <option value="EU_ppb">除非标准要求，都转为欧盟ppb</option>
-                                <option value="US_ppb">除非标准要求，都转为美标ppb</option>
-                                <option value="Force_ugm3">µg/m³</option>
-                                <option value="Force_EU_ppb">欧盟ppb</option>
-                                <option value="Force_US_ppb">美标ppb</option>
-                            </select>
-                            <span class="form-desc">污染物单位的转换目标。</span>
-                        </div>
+                            <div class="checkbox-group">
+                                <input class="checkbox-input" type="checkbox" id="forceCNPrimaryPollutants">
+                                <label class="checkbox-label" for="forceCNPrimaryPollutants">
+                                    <strong>[今日空气指数] 强制主要污染物</strong><br>
+                                    <span class="form-desc" style="margin-top:0.2rem">忽略国标（HJ 633—2012）的AQI &gt; 50规定，始终将IAQI最大的空气污染物作为主要污染物。</span>
+                                </label>
+                            </div>
 
-                        <div class="checkbox-group">
-                            <input class="checkbox-input" type="checkbox" id="forceCNPrimaryPollutants">
-                            <label class="checkbox-label" for="forceCNPrimaryPollutants">
-                                <strong>[今日空气指数] 强制主要污染物</strong><br>
-                                <span class="form-desc" style="margin-top:0.2rem">忽略国标（HJ 633—2012）的AQI &gt; 50规定，始终将IAQI最大的空气污染物作为主要污染物。</span>
-                            </label>
-                        </div>
+                            <div class="checkbox-group">
+                                <input class="checkbox-input" type="checkbox" id="allowOverRange">
+                                <label class="checkbox-label" for="allowOverRange">
+                                    <strong>[iRingo内置算法] 允许指数超标</strong><br>
+                                    <span class="form-desc" style="margin-top:0.2rem">允许美标和国标的指数计算结果超过500上限。</span>
+                                </label>
+                            </div>
 
-                        <div class="checkbox-group">
-                            <input class="checkbox-input" type="checkbox" id="allowOverRange">
-                            <label class="checkbox-label" for="allowOverRange">
-                                <strong>[iRingo内置算法] 允许指数超标</strong><br>
-                                <span class="form-desc" style="margin-top:0.2rem">允许美标和国标的指数计算结果超过500上限。</span>
-                            </label>
-                        </div>
+                            <div class="checkbox-group">
+                                <input class="checkbox-input" type="checkbox" id="replaceWhenCurrentChange">
+                                <label class="checkbox-label" for="replaceWhenCurrentChange">
+                                    <strong>[空气质量 - 对比昨日] 变化时替换</strong><br>
+                                    <span class="form-desc" style="margin-top:0.2rem">即使系统已有昨日对比数据，当今日空气指数发生变化时，强制重新计算并替换昨日对比数据。</span>
+                                </label>
+                            </div>
 
-                        <div class="checkbox-group">
-                            <input class="checkbox-input" type="checkbox" id="replaceWhenCurrentChange">
-                            <label class="checkbox-label" for="replaceWhenCurrentChange">
-                                <strong>[空气质量 - 对比昨日] 变化时替换</strong><br>
-                                <span class="form-desc" style="margin-top:0.2rem">即使系统已有昨日对比数据，当今日空气指数发生变化时，强制重新计算并替换昨日对比数据。</span>
-                            </label>
-                        </div>
+                            <div class="form-group">
+                                <label class="form-label" for="indexReplace">[今日空气指数] 替换目标</label>
+                                <select class="form-select" id="indexReplace">
+                                    <option value="HJ6332012" selected>中国AQI (HJ6332012)</option>
+                                    <option value="EPA_NowCast">美国AQI (EPA_NowCast)</option>
+                                    <option value="EU.EAQI">欧盟EAQI (EU.EAQI)</option>
+                                    <option value="UBA">德国LQI (UBA)</option>
+                                    <option value="IE.AQIH">爱尔兰AQIH (IE.AQIH)</option>
+                                    <option value="AT.AQI">奥地利AQI (AT.AQI)</option>
+                                    <option value="BE.BelAQI">比利时BelAQI (BE.BelAQI)</option>
+                                    <option value="FR.ATMO">法国IQA (FR.ATMO)</option>
+                                    <option value="KR.CAI">韩国CAI (KR.CAI)</option>
+                                    <option value="CA.AQHI">加拿大AQHI (CA.AQHI)</option>
+                                    <option value="CZ.AQI">捷克AQI (CZ.AQI)</option>
+                                    <option value="NL.LKI">荷兰LKI (NL.LKI)</option>
+                                    <option value="ICARS">墨西哥ICARS (ICARS)</option>
+                                    <option value="CH.KBI">瑞士KBI (CH.KBI)</option>
+                                    <option value="ES.MITECO">西班牙ICA (ES.MITECO)</option>
+                                    <option value="SG.NEA">新加坡PSI (SG.NEA)</option>
+                                    <option value="NAQI">印度NAQI (NAQI)</option>
+                                    <option value="DAQI">英国DAQI (DAQI)</option>
+                                </select>
+                                <span class="form-desc">替换 Apple 原生返回的指定标准 AQI（仅当定位地区 Apple 实际返回该标准时才触发；国内通常保持「中国AQI」即可）。最终显示哪个标准由上方「AQI 标准」决定。</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="unitsReplace">[今日污染物 - 单位转换] 替换目标</label>
+                                <select class="form-select" id="unitsReplace">
+                                    <option value="None" selected>不转换</option>
+                                    <option value="HJ6332012">中国AQI (HJ6332012)</option>
+                                    <option value="EPA_NowCast">美国AQI (EPA_NowCast)</option>
+                                    <option value="EU.EAQI">欧盟EAQI (EU.EAQI)</option>
+                                    <option value="UBA">德国LQI (UBA)</option>
+                                </select>
+                                <span class="form-desc">转换污染物的单位，方便与空气质量标准比对。</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="pollutantsUnitsMode">[今日污染物 - 单位转换] 模式</label>
+                                <select class="form-select" id="pollutantsUnitsMode">
+                                    <option value="Scale" selected>与空气质量标准的要求相同</option>
+                                    <option value="ugm3">除非标准要求，都转为µg/m³</option>
+                                    <option value="EU_ppb">除非标准要求，都转为欧盟ppb</option>
+                                    <option value="US_ppb">除非标准要求，都转为美标ppb</option>
+                                    <option value="Force_ugm3">µg/m³</option>
+                                    <option value="Force_EU_ppb">欧盟ppb</option>
+                                    <option value="Force_US_ppb">美标ppb</option>
+                                </select>
+                                <span class="form-desc">污染物单位的转换目标。</span>
+                            </div>
+                        </details>
 
                         <div class="checkbox-group">
                             <input class="checkbox-input" type="checkbox" id="replaceDaily">
@@ -900,10 +898,9 @@ export function renderIndex(host, protocol) {
         const qweatherHost = document.getElementById("qweatherHost");
         const weatherProvider = document.getElementById("weatherProvider");
         const nextHourProvider = document.getElementById("nextHourProvider");
-        const pollutantsProvider = document.getElementById("pollutantsProvider");
-        const indexProvider = document.getElementById("indexProvider");
-        const yesterdayProvider = document.getElementById("yesterdayProvider");
-        const calculateAlgorithm = document.getElementById("calculateAlgorithm");
+        const aqiStandard = document.getElementById("aqiStandard");
+        const aqiSource = document.getElementById("aqiSource");
+        const forceCalculate = document.getElementById("forceCalculate");
         const forceCNPrimaryPollutants = document.getElementById("forceCNPrimaryPollutants");
         const allowOverRange = document.getElementById("allowOverRange");
         const replaceWhenCurrentChange = document.getElementById("replaceWhenCurrentChange");
@@ -912,7 +909,6 @@ export function renderIndex(host, protocol) {
 
         // 新增的 DOM 元素
         const weatherReplace = document.getElementById("weatherReplace");
-        const yesterdayPollutantsProvider = document.getElementById("yesterdayPollutantsProvider");
         const pollutantsUnitsMode = document.getElementById("pollutantsUnitsMode");
         const indexReplace = document.getElementById("indexReplace");
         const unitsReplace = document.getElementById("unitsReplace");
@@ -949,18 +945,16 @@ export function renderIndex(host, protocol) {
                 qweatherHost: "",
                 weatherProvider: "ColorfulClouds",
                 nextHourProvider: "ColorfulClouds",
-                indexProvider: "ColorfulCloudsCN",
-                yesterdayProvider: "ColorfulCloudsCN",
-                pollutantsProvider: "ColorfulClouds",
-                calculateAlgorithm: "WAQI_InstantCast_CN",
-                yesterdayPollutantsProvider: "ColorfulCloudsCN",
+                aqiStandard: "CN",
+                aqiSource: "Caiyun",
+                forceCalculate: false,
+                forceCNPrimaryPollutants: false,
+                allowOverRange: false,
+                replaceWhenCurrentChange: false,
                 weatherReplace: "",
                 indexReplace: "HJ6332012",
                 unitsReplace: "None",
                 pollutantsUnitsMode: "Scale",
-                forceCNPrimaryPollutants: false,
-                allowOverRange: false,
-                replaceWhenCurrentChange: false,
                 replaceDaily: false,
                 replaceHourly: false,
                 edgeCache: false
@@ -980,11 +974,9 @@ export function renderIndex(host, protocol) {
                 presetData.Advanced.qweatherHost = qweatherHost.value.trim();
                 presetData.Advanced.weatherProvider = weatherProvider.value;
                 presetData.Advanced.nextHourProvider = nextHourProvider.value;
-                presetData.Advanced.indexProvider = indexProvider.value;
-                presetData.Advanced.yesterdayProvider = yesterdayProvider.value;
-                presetData.Advanced.pollutantsProvider = pollutantsProvider.value;
-                presetData.Advanced.calculateAlgorithm = calculateAlgorithm.value;
-                presetData.Advanced.yesterdayPollutantsProvider = yesterdayPollutantsProvider.value;
+                presetData.Advanced.aqiStandard = aqiStandard.value;
+                presetData.Advanced.aqiSource = aqiSource.value;
+                presetData.Advanced.forceCalculate = forceCalculate.checked;
                 presetData.Advanced.weatherReplace = weatherReplace.value.trim();
                 presetData.Advanced.indexReplace = indexReplace.value;
                 presetData.Advanced.unitsReplace = unitsReplace.value;
@@ -1030,11 +1022,9 @@ export function renderIndex(host, protocol) {
                 qweatherHost.value = presetData.Advanced.qweatherHost;
                 weatherProvider.value = presetData.Advanced.weatherProvider;
                 nextHourProvider.value = presetData.Advanced.nextHourProvider;
-                indexProvider.value = presetData.Advanced.indexProvider;
-                yesterdayProvider.value = presetData.Advanced.yesterdayProvider;
-                pollutantsProvider.value = presetData.Advanced.pollutantsProvider;
-                calculateAlgorithm.value = presetData.Advanced.calculateAlgorithm;
-                yesterdayPollutantsProvider.value = presetData.Advanced.yesterdayPollutantsProvider;
+                aqiStandard.value = presetData.Advanced.aqiStandard;
+                aqiSource.value = presetData.Advanced.aqiSource;
+                forceCalculate.checked = presetData.Advanced.forceCalculate;
                 weatherReplace.value = presetData.Advanced.weatherReplace;
                 indexReplace.value = presetData.Advanced.indexReplace;
                 unitsReplace.value = presetData.Advanced.unitsReplace;
@@ -1064,6 +1054,76 @@ export function renderIndex(host, protocol) {
             let s = str.replace(/-/g, "+").replace(/_/g, "/");
             while (s.length % 4) s += "=";
             return decodeURIComponent(escape(atob(s)));
+        }
+
+        // AQI 标准 → { 本地算法, 彩云现成AQI, 和风现成AQI, 推荐数据源, 推荐替换目标, 推荐单位转换 }
+        // caiyunVendor / qweatherVendor 为 null 表示该数据源无此标准的现成 AQI，需本地计算。
+        // recIndexReplace / recUnitsReplace：选定标准后「替换目标」「单位转换」自动跟随的取值，
+        // 让「选一个标准，全套生效」覆盖到这两个高级项（仍可在折叠区内手动覆盖）。
+        const AQI_STANDARDS = {
+            CN:   { algorithm: "WAQI_InstantCast_CN",          caiyunVendor: "ColorfulCloudsCN", qweatherVendor: "QWeather", recSource: "Caiyun", recIndexReplace: "HJ6332012",   recUnitsReplace: "HJ6332012" },
+            US:   { algorithm: "WAQI_InstantCast_US",          caiyunVendor: "ColorfulCloudsUS", qweatherVendor: "QWeather", recSource: "Caiyun", recIndexReplace: "EPA_NowCast", recUnitsReplace: "EPA_NowCast" },
+            EU:   { algorithm: "EU_EAQI",                      caiyunVendor: null,               qweatherVendor: "QWeather", recSource: "QWeather", recIndexReplace: "EU.EAQI",     recUnitsReplace: "EU.EAQI" },
+            UBA:  { algorithm: "UBA",                          caiyunVendor: null,               qweatherVendor: null,       recSource: "Caiyun", recIndexReplace: "UBA",         recUnitsReplace: "UBA" },
+            CN25: { algorithm: "WAQI_InstantCast_CN_25_DRAFT", caiyunVendor: null,               qweatherVendor: null,       recSource: "Caiyun", recIndexReplace: "HJ6332012",   recUnitsReplace: "HJ6332012" },
+            None: { algorithm: "None",                        caiyunVendor: null,               qweatherVendor: null,       recSource: "Caiyun", recIndexReplace: "HJ6332012",   recUnitsReplace: "None" }
+        };
+
+        // 算法名 → 标准（反向映射用）
+        const ALGORITHM_TO_STANDARD = {
+            WAQI_InstantCast_CN: "CN",
+            WAQI_InstantCast_US: "US",
+            EU_EAQI: "EU",
+            UBA: "UBA",
+            WAQI_InstantCast_CN_25_DRAFT: "CN25",
+            None: "None"
+        };
+
+        // 前向：由 (aqiStandard, aqiSource, forceCalculate) 派生旧的 4 个 provider 设置 + algorithm。
+        // 生成的 Settings.AirQuality.* 结构与改造前完全一致，下游处理逻辑无需改动。
+        function buildAqiSettings(adv) {
+            const std = AQI_STANDARDS[adv.aqiStandard] || AQI_STANDARDS.CN;
+            const isQWeather = adv.aqiSource === "QWeather";
+            const vendor = isQWeather ? std.qweatherVendor : std.caiyunVendor;
+            const isNone = std.algorithm === "None";
+            // 无现成 AQI 或强制本地计算 → 走内置算法；不转换 → 也走 Calculate(Algorithm=None) 以保持不触碰
+            const useCalc = isNone ? true : (adv.forceCalculate || !vendor);
+            const indexProvider = useCalc ? "Calculate" : vendor;
+            return {
+                algorithm: std.algorithm,
+                indexProvider,
+                // 今天与昨天走同一路径，保证对比口径一致
+                yesterdayIndexProvider: indexProvider,
+                // 不转换：不注入污染物、不触发替换，彻底保留 Apple 原始数据
+                pollutantsProvider: isNone ? "WeatherKit" : (isQWeather ? "QWeather" : "ColorfulClouds"),
+                yesterdayPollutantsProvider: isQWeather ? "QWeather" : "ColorfulCloudsCN",
+                indexReplace: isNone ? [] : (adv.indexReplace ? [adv.indexReplace] : []),
+                // 不转换：不做单位换算；其余标准沿用折叠区的「单位转换」值（由标准联动预填）
+                unitsReplace: isNone ? "None" : (adv.unitsReplace || "None")
+            };
+        }
+
+        // 反向：由既有 Settings.AirQuality 推断 (aqiStandard, aqiSource, forceCalculate)，用于回填表单。
+        function parseAqiSettings(air) {
+            const idxProvider = air?.Current?.Index?.Provider || "ColorfulCloudsCN";
+            const algorithm = air?.Calculate?.Algorithm || "WAQI_InstantCast_CN";
+            const pollutantsProvider = air?.Current?.Pollutants?.Provider || "ColorfulClouds";
+            const source = pollutantsProvider === "QWeather" ? "QWeather" : "Caiyun";
+            const forceCalculate = idxProvider === "Calculate";
+            let standard;
+            if (idxProvider === "Calculate") {
+                standard = ALGORITHM_TO_STANDARD[algorithm] || "CN";
+            } else if (idxProvider === "ColorfulCloudsCN") {
+                standard = "CN";
+            } else if (idxProvider === "ColorfulCloudsUS") {
+                standard = "US";
+            } else if (idxProvider === "QWeather") {
+                // 和风的实际标准由其按地区运行时决定、非配置可控；按算法尽力还原，默认国标。
+                standard = (ALGORITHM_TO_STANDARD[algorithm] && algorithm !== "WAQI_InstantCast_CN") ? ALGORITHM_TO_STANDARD[algorithm] : "CN";
+            } else {
+                standard = "CN";
+            }
+            return { standard, source, forceCalculate };
         }
 
         // 计算 URL 中的 base64 编码配置
@@ -1118,33 +1178,36 @@ export function renderIndex(host, protocol) {
                         ReplaceHourly: presetData.Advanced.replaceHourly
                     },
                     NextHour: { Provider: presetData.Advanced.nextHourProvider },
-                    AirQuality: {
-                        Current: {
-                            Pollutants: { 
-                                Provider: presetData.Advanced.pollutantsProvider,
-                                Units: {
-                                    Replace: presetData.Advanced.unitsReplace && presetData.Advanced.unitsReplace !== "None" ? [presetData.Advanced.unitsReplace] : [],
-                                    Mode: presetData.Advanced.pollutantsUnitsMode
+                    AirQuality: (() => {
+                        const aqi = buildAqiSettings(presetData.Advanced);
+                        return {
+                            Current: {
+                                Pollutants: {
+                                    Provider: aqi.pollutantsProvider,
+                                    Units: {
+                                        Replace: aqi.unitsReplace && aqi.unitsReplace !== "None" ? [aqi.unitsReplace] : [],
+                                        Mode: presetData.Advanced.pollutantsUnitsMode
+                                    }
+                                },
+                                Index: {
+                                    Provider: aqi.indexProvider,
+                                    ForceCNPrimaryPollutants: presetData.Advanced.forceCNPrimaryPollutants,
+                                    Replace: aqi.indexReplace
                                 }
                             },
-                            Index: { 
-                                Provider: presetData.Advanced.indexProvider,
-                                ForceCNPrimaryPollutants: presetData.Advanced.forceCNPrimaryPollutants,
-                                Replace: presetData.Advanced.indexReplace ? [presetData.Advanced.indexReplace] : []
+                            Comparison: {
+                                ReplaceWhenCurrentChange: presetData.Advanced.replaceWhenCurrentChange,
+                                Yesterday: {
+                                    PollutantsProvider: aqi.yesterdayPollutantsProvider,
+                                    IndexProvider: aqi.yesterdayIndexProvider
+                                }
+                            },
+                            Calculate: {
+                                Algorithm: aqi.algorithm,
+                                AllowOverRange: presetData.Advanced.allowOverRange
                             }
-                        },
-                        Comparison: {
-                            ReplaceWhenCurrentChange: presetData.Advanced.replaceWhenCurrentChange,
-                            Yesterday: {
-                                PollutantsProvider: presetData.Advanced.yesterdayPollutantsProvider,
-                                IndexProvider: presetData.Advanced.yesterdayProvider
-                            }
-                        },
-                        Calculate: {
-                            Algorithm: presetData.Advanced.calculateAlgorithm,
-                            AllowOverRange: presetData.Advanced.allowOverRange
-                        }
-                    },
+                        };
+                    })(),
                     API: {
                         ColorfulClouds: { Token: presetData.Advanced.caiyunToken || null },
                         QWeather: { 
@@ -1162,15 +1225,17 @@ export function renderIndex(host, protocol) {
             } else if (currentPreset === "QWeather") {
                 hasCustomData = !!presetData.QWeather.qweatherToken || !!presetData.QWeather.qweatherHost;
             } else {
-                const isDefaultIndexReplace = presetData.Advanced.indexReplace === "HJ6332012";
-                const isDefaultUnitsReplace = !presetData.Advanced.unitsReplace || presetData.Advanced.unitsReplace === "None";
-                hasCustomData = presetData.Advanced.caiyunToken || 
-                                presetData.Advanced.qweatherToken || 
-                                presetData.Advanced.weatherProvider !== "ColorfulClouds" || 
+                const std = AQI_STANDARDS[presetData.Advanced.aqiStandard] || AQI_STANDARDS.CN;
+                const isDefaultIndexReplace = presetData.Advanced.indexReplace === std.recIndexReplace;
+                // 「不转换」与「该标准的推荐单位」都视为默认：前者是历史默认，后者是标准联动后的取值（对默认国标为 no-op）。
+                const isDefaultUnitsReplace = !presetData.Advanced.unitsReplace || presetData.Advanced.unitsReplace === "None" || presetData.Advanced.unitsReplace === std.recUnitsReplace;
+                hasCustomData = presetData.Advanced.caiyunToken ||
+                                presetData.Advanced.qweatherToken ||
+                                presetData.Advanced.weatherProvider !== "ColorfulClouds" ||
                                 presetData.Advanced.nextHourProvider !== "ColorfulClouds" ||
-                                presetData.Advanced.pollutantsProvider !== "ColorfulClouds" ||
-                                presetData.Advanced.indexProvider !== "ColorfulCloudsCN" ||
-                                presetData.Advanced.yesterdayProvider !== "ColorfulCloudsCN" ||
+                                presetData.Advanced.aqiStandard !== "CN" ||
+                                presetData.Advanced.aqiSource !== "Caiyun" ||
+                                presetData.Advanced.forceCalculate === true ||
                                 !!presetData.Advanced.qweatherHost ||
                                 presetData.Advanced.forceCNPrimaryPollutants === true ||
                                 presetData.Advanced.replaceWhenCurrentChange === true ||
@@ -1178,12 +1243,10 @@ export function renderIndex(host, protocol) {
                                 presetData.Advanced.replaceDaily === true ||
                                 presetData.Advanced.replaceHourly === true ||
                                 presetData.Advanced.edgeCache === true ||
-                                presetData.Advanced.calculateAlgorithm !== "WAQI_InstantCast_CN" ||
                                 (presetData.Advanced.weatherReplace !== "" && presetData.Advanced.weatherReplace !== "CN") ||
                                 !isDefaultIndexReplace ||
                                 !isDefaultUnitsReplace ||
-                                presetData.Advanced.pollutantsUnitsMode !== "Scale" ||
-                                presetData.Advanced.yesterdayPollutantsProvider !== "ColorfulCloudsCN";
+                                presetData.Advanced.pollutantsUnitsMode !== "Scale";
             }
             
             // 保存/更新本地浏览器存储 (LocalStorage)
@@ -1367,12 +1430,24 @@ export function renderIndex(host, protocol) {
             }
         });
 
+        // 「标准联动」：切换 AQI 标准时，数据源、替换目标、单位转换一并跟随该标准的推荐值
+        // （国标/美标/德国/国标草案 → 彩云；欧盟 → 和风）。用户随后仍可在折叠区手动覆盖。
+        if (aqiStandard) {
+            const followStandard = () => {
+                const std = AQI_STANDARDS[aqiStandard.value] || AQI_STANDARDS.CN;
+                if (aqiSource.value !== std.recSource) aqiSource.value = std.recSource;
+                if (indexReplace.value !== std.recIndexReplace) indexReplace.value = std.recIndexReplace;
+                if (unitsReplace.value !== std.recUnitsReplace) unitsReplace.value = std.recUnitsReplace;
+            };
+            aqiStandard.addEventListener("change", () => { followStandard(); syncDOMToPresetData(); renderCards(); });
+        }
+
         // 监听所有输入框和下拉框的变化，并及时同步到 presetData
         const inputs = [
-            caiyunToken, qweatherToken, qweatherHost, weatherProvider, nextHourProvider, 
-            pollutantsProvider, indexProvider, yesterdayProvider, calculateAlgorithm, 
+            caiyunToken, qweatherToken, qweatherHost, weatherProvider, nextHourProvider,
+            aqiStandard, aqiSource, forceCalculate,
             forceCNPrimaryPollutants, allowOverRange, replaceWhenCurrentChange,
-            weatherReplace, yesterdayPollutantsProvider, pollutantsUnitsMode,
+            weatherReplace, pollutantsUnitsMode,
             indexReplace, unitsReplace, replaceDaily, replaceHourly, edgeCache
         ];
         inputs.forEach(input => {
@@ -1403,18 +1478,17 @@ export function renderIndex(host, protocol) {
             presetData.Advanced.qweatherHost = qHost;
             presetData.Advanced.weatherProvider = decoded.Weather?.Provider || "ColorfulClouds";
             presetData.Advanced.nextHourProvider = decoded.NextHour?.Provider || "ColorfulClouds";
-            presetData.Advanced.pollutantsProvider = decoded.AirQuality?.Current?.Pollutants?.Provider || "ColorfulClouds";
-            presetData.Advanced.indexProvider = decoded.AirQuality?.Current?.Index?.Provider || "ColorfulCloudsCN";
-            presetData.Advanced.yesterdayProvider = decoded.AirQuality?.Comparison?.Yesterday?.IndexProvider || "ColorfulCloudsCN";
+            const aqiParsed = parseAqiSettings(decoded.AirQuality);
+            presetData.Advanced.aqiStandard = aqiParsed.standard;
+            presetData.Advanced.aqiSource = aqiParsed.source;
+            presetData.Advanced.forceCalculate = aqiParsed.forceCalculate;
 
             presetData.Advanced.weatherReplace = decoded.Weather?.Replace ? decoded.Weather.Replace.join(",") : "";
-            presetData.Advanced.yesterdayPollutantsProvider = decoded.AirQuality?.Comparison?.Yesterday?.PollutantsProvider || "ColorfulCloudsCN";
             presetData.Advanced.pollutantsUnitsMode = decoded.AirQuality?.Current?.Pollutants?.Units?.Mode || "Scale";
 
             presetData.Advanced.forceCNPrimaryPollutants = decoded.AirQuality?.Current?.Index?.ForceCNPrimaryPollutants === true;
             presetData.Advanced.replaceWhenCurrentChange = decoded.AirQuality?.Comparison?.ReplaceWhenCurrentChange === true;
             presetData.Advanced.allowOverRange = decoded.AirQuality?.Calculate?.AllowOverRange === true;
-            presetData.Advanced.calculateAlgorithm = decoded.AirQuality?.Calculate?.Algorithm || "WAQI_InstantCast_CN";
             presetData.Advanced.replaceDaily = decoded.Weather?.ReplaceDaily === true;
             presetData.Advanced.replaceHourly = decoded.Weather?.ReplaceHourly === true;
             presetData.Advanced.edgeCache = decoded.EdgeCache === true;
@@ -1426,12 +1500,14 @@ export function renderIndex(host, protocol) {
             presetData.Advanced.unitsReplace = unitsReplaceArr[0] || "None";
 
             // 判断应该属于哪个 Preset
-            const isQWeather = decoded.Weather?.Provider === "QWeather" && 
-                               decoded.NextHour?.Provider === "QWeather" && 
-                               decoded.AirQuality?.Current?.Index?.Provider === "QWeather" && 
-                               decoded.AirQuality?.Comparison?.Yesterday?.IndexProvider === "QWeather" && 
-                               decoded.AirQuality?.Current?.Pollutants?.Provider === "QWeather" && 
-                               decoded.AirQuality?.Comparison?.Yesterday?.PollutantsProvider === "QWeather";
+            // 注意：纯彩云/纯和风预设分支下发的配置不含 Yesterday.PollutantsProvider，故此处对其用
+            // 「等于预设值 或 缺省」的容错判断（与 isCaiyun 一致），否则预设配置无法往返还原到对应标签。
+            const isQWeather = decoded.Weather?.Provider === "QWeather" &&
+                               decoded.NextHour?.Provider === "QWeather" &&
+                               decoded.AirQuality?.Current?.Index?.Provider === "QWeather" &&
+                               decoded.AirQuality?.Comparison?.Yesterday?.IndexProvider === "QWeather" &&
+                               decoded.AirQuality?.Current?.Pollutants?.Provider === "QWeather" &&
+                               (decoded.AirQuality?.Comparison?.Yesterday?.PollutantsProvider === "QWeather" || !decoded.AirQuality?.Comparison?.Yesterday?.PollutantsProvider);
             
             const isCaiyun = (decoded.Weather?.Provider === "ColorfulClouds" || !decoded.Weather?.Provider) && 
                              (decoded.NextHour?.Provider === "ColorfulClouds" || !decoded.NextHour?.Provider) && 
@@ -1441,17 +1517,19 @@ export function renderIndex(host, protocol) {
                              (decoded.AirQuality?.Comparison?.Yesterday?.PollutantsProvider === "ColorfulCloudsCN" || !decoded.AirQuality?.Comparison?.Yesterday?.PollutantsProvider) &&
                              !qToken && !qHost;
             
+            // isDefaultAdvanced 只判断「高级项是否都在默认值」，不判断 aqiStandard/aqiSource/weather 数据源——
+            // 后者由 isCaiyun/isQWeather 负责匹配。这样纯彩云/纯和风预设都能被正确识别。
             const isDefaultAdvanced = !presetData.Advanced.weatherReplace &&
+                                      !presetData.Advanced.forceCalculate &&
                                       presetData.Advanced.indexReplace === "HJ6332012" &&
-                                      presetData.Advanced.unitsReplace === "None" &&
+                                      (presetData.Advanced.unitsReplace === "None" || presetData.Advanced.unitsReplace === "HJ6332012") &&
                                       presetData.Advanced.pollutantsUnitsMode === "Scale" &&
                                       !presetData.Advanced.forceCNPrimaryPollutants &&
                                       !presetData.Advanced.replaceWhenCurrentChange &&
                                       !presetData.Advanced.allowOverRange &&
                                       !presetData.Advanced.replaceDaily &&
                                       !presetData.Advanced.replaceHourly &&
-                                      !presetData.Advanced.edgeCache &&
-                                      presetData.Advanced.calculateAlgorithm === "WAQI_InstantCast_CN";
+                                      !presetData.Advanced.edgeCache;
 
             if (isQWeather && isDefaultAdvanced) {
                 currentPreset = "QWeather";

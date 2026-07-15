@@ -546,7 +546,9 @@ export default class AirQuality {
         }
 
         const indexesWithCategory = pollutants
-            .filter(({ index }) => Number.isFinite(index))
+            // index=-1 表示该污染物在当前 scale 未定义（见 #ComputePollutantIndex）；
+            // Number.isFinite(-1)===true，故需额外以 index>=0 滤除，避免其流入 CategoryIndex 产生误报。
+            .filter(({ index }) => Number.isFinite(index) && index >= 0)
             .map(pollutant => ({
                 ...pollutant,
                 categoryIndex: AirQuality.CategoryIndex(pollutant.index, categories),
