@@ -51,9 +51,9 @@ sequenceDiagram
    * 系统通过 [parseWeatherKitURL.mjs](file:///Users/meme/Developer/weatherkit-proxy/src/function/parseWeatherKitURL.mjs) 提取请求的目标纬度、经度、国家码和请求的数据集（`dataSets`，如 `currentWeather`、`forecastNextHour`、`airQuality`）。
    * 根据用户的服务提供商配置（如选择彩云天气或和风天气），在向 Apple 官方接口发送请求的同时，**异步且并发**地向第三方 API 获取降水、当前天气或 AQI 信息。通过 `Promise.all` 极大减少总响应耗时。
 3. **数据合并与重写**
-   * 拦截到 Apple 官方的 FlatBuffer 字节流响应后，通过 [WeatherKit2.mjs](file:///Users/meme/Developer/weatherkit-proxy/src/class/WeatherKit2.mjs) 解码为 JS 对象。
+   * 拦截到 Apple 官方的 FlatBuffer 字节流响应后，通过 [WeatherKit2.mjs](file:///Users/meme/Developer/weatherkit-proxy/src/class/WeatherKit2.mjs) **按需解码**：仅解析请求中可被注入的 root 产品（`airQuality`、`currentWeather`、`forecastDaily`、`forecastHourly`、`forecastNextHour`），其余产品保持为不透明字节。
    * 根据配置，使用 `InjectAirQuality`、`InjectCurrentWeather`、`InjectForecastNextHour` 等方法将预取的第三方高精度数据注入并改写对应的字段。
-   * 利用 FlatBuffer Builder 将改写后的对象重新编码为二进制流并回写响应。
+   * 仅对**实际发生替换/改动的产品**重编码对应槽位，其余未触及的 root 产品（含 iOS 27 等新 schema 引入、本代理不识别的产品）经 [flatBufferRootOverlay.mjs](file:///Users/meme/Developer/weatherkit-proxy/src/function/flatBufferRootOverlay.mjs) 以 copy-on-write 方式原样保留，避免在 decode/encode 往返中丢失；若无任何改动则直接透传 Apple 原始字节。
 
 ---
 

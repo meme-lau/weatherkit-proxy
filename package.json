@@ -33,6 +33,7 @@
         "deploy:vercel": "npx vercel deploy --prod",
         "deploy:wrangler": "node ./node_modules/wrangler/bin/wrangler.js deploy --minify",
         "build": "echo 'No build step required'",
+        "test": "node --test",
         "submodule": "git submodule update --remote",
         "update": "npm update --save"
     },

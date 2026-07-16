@@ -121,42 +121,53 @@ export async function Response($request, $response, context = {}) {
                         case "weatherkit.apple.com":
                             // 路径判断
                             if (url.pathname.startsWith("/api/v2/weather/")) {
-                                body = WeatherKit2.decode(ByteBuffer, "all");
+                                body = WeatherKit2.decode(ByteBuffer, parameters.dataSets);
                                 // // 打印 Apple 原始 airQuality 数据
                                 // if (body?.airQuality) {
                                 //     Console.log(`[Apple 原始 airQuality]`, JSON.stringify(body.airQuality, null, 2));
                                 // }
                                 // 优先使用 Hono.js 预构建的环境实例，避免重复创建
-                                const parameters = preParameters || parseWeatherKitURL(url);
                                 const enviroments = preEnviroments || {
                                     colorfulClouds: new ColorfulClouds(parameters, Settings?.API?.ColorfulClouds?.Token || "Y2FpeXVuX25vdGlmeQ=="),
                                     qWeather: new QWeather(parameters, Settings?.API?.QWeather?.Token, Settings?.API?.QWeather?.Host),
                                     country: parameters.country,
                                 };
 
-                                const allSections = ["currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour", "airQuality"];
+                                // 记录被实际替换/改动的 root 产品：仅在确有改动时才重编码对应槽位，
+                                // 未触及的 root 产品（含 iOS 27 新增 schema）作为不透明表原样透传，避免丢失。
+                                const replacementDataSets = new Set();
+                                const originalForecastNextHour = body.forecastNextHour;
 
                                 await Promise.all(
                                     parameters.dataSets.map(async dataSet => {
                                         switch (dataSet) {
                                             case "airQuality": {
+                                                const originalAirQuality = body.airQuality;
                                                 body.airQuality = await InjectAirQuality(body.airQuality, Settings, enviroments, preFetched);
+                                                if (body.airQuality !== originalAirQuality) replacementDataSets.add(dataSet);
                                                 break;
                                             }
                                             case "currentWeather": {
+                                                const originalCurrentWeather = body.currentWeather;
                                                 body.currentWeather = await InjectCurrentWeather(body.currentWeather, Settings, enviroments, preFetched.currentWeather);
+                                                if (body.currentWeather !== originalCurrentWeather) replacementDataSets.add(dataSet);
                                                 break;
                                             }
                                             case "forecastDaily": {
+                                                const originalMetadata = body.forecastDaily?.metadata;
                                                 body.forecastDaily = await InjectForecastDaily(body.forecastDaily, Settings, enviroments, preFetched.forecastDaily);
+                                                if (body.forecastDaily?.metadata !== originalMetadata) replacementDataSets.add(dataSet);
                                                 break;
                                             }
                                             case "forecastHourly": {
+                                                const originalMetadata = body.forecastHourly?.metadata;
                                                 body.forecastHourly = await InjectForecastHourly(body.forecastHourly, Settings, enviroments, preFetched.forecastHourly);
+                                                if (body.forecastHourly?.metadata !== originalMetadata) replacementDataSets.add(dataSet);
                                                 break;
                                             }
                                             case "forecastNextHour": {
                                                 body.forecastNextHour = await InjectForecastNextHour(body.forecastNextHour, Settings, enviroments, preFetched.forecastNextHour);
+                                                if (body.forecastNextHour !== originalForecastNextHour) replacementDataSets.add(dataSet);
                                                 break;
                                             }
                                             default:
@@ -165,19 +176,25 @@ export async function Response($request, $response, context = {}) {
                                     }),
                                 );
 
-                                // 去掉所有 providerLogo
+                                // 去掉所有 providerLogo（本仓库既定行为）；被剥离 logo 的可注入区段需要重编码以反映改动。
+                                const allSections = ["currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour", "airQuality"];
                                 allSections.forEach(s => {
                                     if (body?.[s]?.metadata?.providerLogo) {
                                         body[s].metadata.providerLogo = undefined;
+                                        replacementDataSets.add(s);
                                     }
                                 });
-                                const WeatherData = WeatherKit2.encode(Builder, "all", body);
-                                Builder.finish(WeatherData);
+
+                                // 仅在确有替换/剥离时重编码，未触及的产品直接透传 Apple 原始字节。
+                                if (replacementDataSets.size) {
+                                    const WeatherData = WeatherKit2.encodeRootOverlay(Builder, ByteBuffer, replacementDataSets, body);
+                                    Builder.finish(WeatherData);
+                                    rawBody = Builder.asUint8Array(); // Of type `Uint8Array`.
+                                }
                                 break;
                             }
                             break;
                     }
-                    rawBody = Builder.asUint8Array(); // Of type `Uint8Array`.
                     break;
                 }
                 case "application/protobuf":
