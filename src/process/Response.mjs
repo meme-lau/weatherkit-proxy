@@ -8,7 +8,7 @@ import WeatherKit2 from "../class/WeatherKit2.mjs";
 import database from "../function/database.mjs";
 import parseWeatherKitURL from "../function/parseWeatherKitURL.mjs";
 import buildSettings from "../function/buildSettings.mjs";
-import { Console } from "../utils/index.mjs";
+import { Console, fetch } from "../utils/index.mjs";
 /***************** Processing *****************/
 export async function Response($request, $response, context = {}) {
     // 解构预取数据（从 Hono.js 并发预取传入）
@@ -40,16 +40,42 @@ export async function Response($request, $response, context = {}) {
 
     // 创建空数据
     let body = {};
-    // airQualityScale 请求：Apple 200 直接透传，404 则本地构建
+    // airQualityScale 请求：Apple 200 直接透传；404 时先用 2604 版本号向 Apple 重试一次
+    // （Apple 会轮换标尺版本号，客户端持有的旧版本号会 404，2604 是当前在用的版本号），
+    // 命中则透传 Apple 的最新标尺；仍失败再回退本地构建。
     if (url.pathname.startsWith("/api/v1/airQualityScale/")) {
         if ($response.status === 200) {
             Console.log(`[proxy] airQualityScale Apple 返回 200，透传: ${url.pathname}`);
             return $response;
         }
-        // Apple 返回 404 或其他错误，本地构建
         const pathParts = url.pathname.split("/").filter(Boolean);
         const language = pathParts[3] ?? "en";
         const scaleName = pathParts[4] ?? "";
+
+        // Apple 返回 404 且当前版本号非 2604：用 2604 重试一次，探测 Apple 是否已升级该标尺版本。
+        // 标尺名不含 "."（无版本号）或已是 2604 时跳过，避免无意义的重复请求。
+        const APPLE_SCALE_FALLBACK_VERSION = "2604";
+        const dot = scaleName.lastIndexOf(".");
+        if ($response.status === 404 && dot > 0 && !scaleName.endsWith(`.${APPLE_SCALE_FALLBACK_VERSION}`)) {
+            const retryScaleName = `${scaleName.slice(0, dot)}.${APPLE_SCALE_FALLBACK_VERSION}`;
+            const retryUrl = new URL($request.url);
+            const segments = retryUrl.pathname.split("/");
+            segments[segments.length - 1] = retryScaleName;
+            retryUrl.pathname = segments.join("/");
+            Console.log(`[proxy] airQualityScale Apple 返回 404，用 ${APPLE_SCALE_FALLBACK_VERSION} 重试: ${retryUrl.pathname}`);
+            try {
+                const retryResponse = await fetch({ ...$request, url: retryUrl.toString() });
+                if (retryResponse.status === 200) {
+                    Console.log(`[proxy] airQualityScale ${APPLE_SCALE_FALLBACK_VERSION} 重试命中，透传: ${retryUrl.pathname}`);
+                    return retryResponse;
+                }
+                Console.log(`[proxy] airQualityScale ${APPLE_SCALE_FALLBACK_VERSION} 重试仍返回 ${retryResponse.status}，回退本地构建: ${scaleName}`);
+            } catch (e) {
+                Console.warn(`[proxy] airQualityScale ${APPLE_SCALE_FALLBACK_VERSION} 重试异常，回退本地构建: ${scaleName}`, e?.message);
+            }
+        }
+
+        // 本地构建兜底
         const localScale = AirQualityScale.buildScale(language, scaleName);
         if (localScale) {
             Console.log(`[proxy] airQualityScale Apple 返回 ${$response.status}，本地构建: ${scaleName}`);
