@@ -409,9 +409,15 @@ async function InjectForecastNextHour(forecastNextHour, Settings, enviroments, p
         }
     }
     if (newForecastNextHour?.metadata) {
-        const isClear = newForecastNextHour?.condition?.[0]?.forecastToken === "CLEAR" || newForecastNextHour?.condition?.length === 0;
+        // 只有存在「轻度及以上」降水（perceivedPrecipitationIntensity > 0.1，对应 Minute() 的
+        // DRIZZLE/FLURRIES 及以上）时，Apple 的分钟级降水强度图才会绘出可见曲线。彩云常返回
+        // 「未来2小时有降水」但强度仅属可能/微量（perceived ≤ 0.1，分类为 POSSIBLE_DRIZZLE 等），
+        // 此时条件非 CLEAR 却会渲染成空白网格卡片，故改为按「是否有可见降水」判定：无可见降水
+        // 即清空该模块以隐藏空白卡片（同时覆盖全程 CLEAR 的旧情形）。
+        const hasVisiblePrecipitation = (newForecastNextHour?.minutes ?? []).some(minute => minute?.perceivedPrecipitationIntensity > 0.1);
+        const isClear = !hasVisiblePrecipitation || newForecastNextHour?.condition?.[0]?.forecastToken === "CLEAR";
         if (isClear) {
-            Console.info("InjectForecastNextHour", "未来一小时无降水，跳过注入并清除该模块（隐藏空白卡片）");
+            Console.info("InjectForecastNextHour", "未来一小时无明显降水，跳过注入并清除该模块（隐藏空白卡片）");
             forecastNextHour = undefined;
         } else {
             newForecastNextHour.metadata = { ...forecastNextHour?.metadata, ...newForecastNextHour.metadata };

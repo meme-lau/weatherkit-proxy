@@ -48,6 +48,86 @@ test("Response removes forecastNextHour and preserves untouched products when pr
     assert.ok(all.currentWeather); // 槽 1 保留
 });
 
+test("Response removes forecastNextHour when prefetch has only trace / possible precipitation (blank chart)", async () => {
+    // 彩云常返回「未来2小时有降水」但强度仅属可能/微量：perceivedPrecipitationIntensity ≤ 0.1，
+    // 分类为 POSSIBLE_DRIZZLE，条件非 CLEAR。Apple 降水强度图此时渲染为空白网格，应隐藏卡片。
+    const originalBytes = createWeatherRoot([0, 1, 4, 5]);
+    const preFetched = {
+        forecastNextHour: Promise.resolve({
+            metadata: {
+                attributionUrl: "https://example.com",
+                expireTime: 1,
+                language: "zh",
+                latitude: 1,
+                longitude: 1,
+                providerLogo: "logo",
+                providerName: "TRACE_PROVIDER",
+                readTime: 1,
+                reportedTime: 1,
+                temporarilyUnavailable: false,
+                sourceType: "MODELED",
+            },
+            condition: [{ forecastToken: "CONSTANT", parameters: [], startTime: 0, endTime: 0, beginCondition: "POSSIBLE_DRIZZLE", endCondition: "POSSIBLE_DRIZZLE" }],
+            summary: [{ condition: "RAIN", startTime: 0, endTime: 0, precipitationChance: 10, precipitationIntensity: 0.09, clear: false }],
+            minutes: Array.from({ length: 60 }, (_, index) => ({
+                startTime: index * 60,
+                precipitationChance: 10,
+                precipitationIntensity: 0.09,
+                perceivedPrecipitationIntensity: 0.003, // ≤ 0.1 → 仅可能降水，Apple 图为空白
+            })),
+            forecastStart: 0,
+            forecastEnd: 60 * 60,
+        }),
+    };
+    const Settings = { Weather: { Replace: ["CN"] }, NextHour: { Provider: "ColorfulClouds" } };
+
+    const res = await Response({ url: "https://weatherkit.apple.com/api/v2/weather/en-CN/22.5/114.0?country=CN&dataSets=forecastNextHour,news" }, { bodyBytes: originalBytes, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, status: 200 }, { preFetched, Settings });
+
+    const all = WeatherKit2.decode(new ByteBuffer(new Uint8Array(res.body)), "all");
+    assert.equal(all.forecastNextHour, undefined); // 仅微量降水 → 清空槽 4，隐藏空白卡片
+    assert.ok(all.news); // 其余未触及产品仍保留
+});
+
+test("Response keeps forecastNextHour when prefetch has visible (light+) precipitation", async () => {
+    // 存在轻度及以上降水（perceivedPrecipitationIntensity > 0.1）时，应正常注入并展示卡片。
+    // 本用例聚焦「是否有可见降水」的判定，condition/summary 留空，仅靠 minutes 判定保留。
+    const originalBytes = createWeatherRoot([0, 1, 4, 5]);
+    const preFetched = {
+        forecastNextHour: Promise.resolve({
+            metadata: {
+                attributionUrl: "https://example.com",
+                expireTime: 1,
+                language: "zh",
+                latitude: 1,
+                longitude: 1,
+                providerLogo: "logo",
+                providerName: "RAIN_PROVIDER",
+                readTime: 1,
+                reportedTime: 1,
+                temporarilyUnavailable: false,
+                sourceType: "MODELED",
+            },
+            condition: [],
+            summary: [],
+            minutes: Array.from({ length: 60 }, (_, index) => ({
+                startTime: index * 60,
+                precipitationChance: 60,
+                precipitationIntensity: 0.6,
+                perceivedPrecipitationIntensity: 0.15, // > 0.1 → 轻度降水，Apple 图可见
+            })),
+            forecastStart: 0,
+            forecastEnd: 60 * 60,
+        }),
+    };
+    const Settings = { Weather: { Replace: ["CN"] }, NextHour: { Provider: "ColorfulClouds" } };
+
+    const res = await Response({ url: "https://weatherkit.apple.com/api/v2/weather/en-CN/22.5/114.0?country=CN&dataSets=forecastNextHour,news" }, { bodyBytes: originalBytes, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, status: 200 }, { preFetched, Settings });
+
+    const all = WeatherKit2.decode(new ByteBuffer(new Uint8Array(res.body)), "all");
+    assert.ok(all.forecastNextHour); // 有可见降水 → 保留并注入
+    assert.equal(all.forecastNextHour.metadata.providerName, "RAIN_PROVIDER");
+});
+
 function createWeatherRoot(presentSlots) {
     const builder = new Builder(256);
     const tables = new Map(presentSlots.map(slot => [slot, createEmptyTable(builder)]));
