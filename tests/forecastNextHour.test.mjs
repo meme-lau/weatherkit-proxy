@@ -250,6 +250,37 @@ test("Minute to Summary to Condition retains six intermittent rain segments", ()
     assert.equal(conditions.length, summaries.length);
 });
 
+test("Summary splits a summaryCondition transition occurring at the last used minute", () => {
+    // 回归：Summary() 的最后一分钟（case Length-1，索引 Length-1=min(71,n)-1=70）曾不检测
+    // summaryCondition 切换，直接把最后一分钟并入当前段并覆盖 clear，导致两个相邻同 clear 的段，
+    // 触发 Condition() 的防御拦截并返回 []，丢失全部 token。此处切换恰好发生在第 71 分钟。
+    const minutes = Array.from({ length: 71 }, (_, index) => {
+        // 0-30 下雨，31-69 转晴，70（最后一分钟）又来一分钟雨
+        const raining = index <= 30 || index === 70;
+        return {
+            precipitationChance: 100,
+            precipitationIntensity: raining ? 1 : 0,
+            startTime: BASE_TIME + index * 60,
+        };
+    });
+
+    const normalized = ForecastNextHour.Minute(minutes, "未来一小时有雨");
+    const summaries = ForecastNextHour.Summary(normalized);
+    const conditions = ForecastNextHour.Condition(summaries);
+
+    // 交替的 clear 段，不再出现相邻同 clear 状态
+    assert.deepEqual(
+        summaries.map(summary => summary.clear),
+        [false, true, false],
+    );
+    // 不再被防御拦截清空，恢复完整的降水叙事 token
+    assert.deepEqual(
+        conditions.map(condition => condition.forecastToken),
+        ["STOP_START", "START", "CONSTANT"],
+    );
+    assert.equal(conditions.length, summaries.length);
+});
+
 test("Condition preserves empty output for missing or unsupported non-alternating summaries", () => {
     assert.deepEqual(ForecastNextHour.Condition([]), []);
     assert.deepEqual(ForecastNextHour.Condition(makeSummaries("RRC")), []);

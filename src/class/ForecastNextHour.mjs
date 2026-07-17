@@ -248,6 +248,28 @@ export default class ForecastNextHour {
                     }
                     break;
                 case Length - 1: // 最后一个
+                    if (minute.summaryCondition !== previousMinute.summaryCondition) {
+                        // 最后一分钟发生状态切换：先结束并保存已累计的段，再单独保存最后一分钟。
+                        // 否则上一段会与最后一分钟合并成同 clear 状态的相邻段，触发 Condition() 的防御拦截而丢失全部 token。
+                        conditionsCount[minute.condition]--;
+                        if (conditionsCount[minute.condition] === 0) delete conditionsCount[minute.condition];
+
+                        Summary.endTime = minute.startTime;
+                        Summary.maxCondition = getRepresentativeCondition(conditionsCount);
+                        Console.debug(`Summaries[${i}]`, JSON.stringify({ ...previousMinute, ...Summary }, null, 2));
+                        Summaries.push({ ...Summary });
+
+                        conditionsCount = {};
+                        conditionsCount[minute.condition] = 1;
+                        Summary = {
+                            startTime: minute.startTime,
+                            condition: minute.summaryCondition,
+                            precipitationChance: minute.precipitationChance,
+                            precipitationIntensity: minute.precipitationIntensity,
+                            maxCondition: "",
+                            clear: minute.clear,
+                        };
+                    }
                     Summary.endTime = 0;
                     Summary.clear = minute.clear;
                     Summary.maxCondition = getRepresentativeCondition(conditionsCount);
