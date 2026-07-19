@@ -1,0 +1,22 @@
+name: Apply attribution update
+
+on:
+  push:
+    branches:
+      - agent/add-upstream-attribution
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/add-upstream-attribution
+          fetch-depth: 0
+
+      - name: Update attribution notices
+        shell
