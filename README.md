@@ -1,4 +1,4 @@
-# <img src="https://developer.apple.com/assets/elements/icons/weatherkit/weatherkit-128x128.png" width="32" height="32" align="center"> WeatherKit-Proxy
+# <img src="assets/weatherkit-proxy.svg" width="32" height="32" align="center" alt="Weather Proxy 黑白图标"> WeatherKit-Proxy
 
 这是一个对 [NSRingo/WeatherKit](https://github.com/NSRingo/WeatherKit) 进行重构与改造的项目，使其支持自主独立部署在 **Cloudflare Workers**、**Cloudflare Pages** 与 **Vercel**。移除了所有本地繁琐的脚本代理依赖，提供一键独立部署与代理配置的动态下载。
 

@@ -1,9 +1,9 @@
 // Loon 插件配置 — 经 /conf/weatherkit-proxy.plugin 下发。
 export default `#!name = WeatherKit-Proxy
-#!desc = 本项目是对 NSRingo/WeatherKit 的自托管优化重构版本。支持独立自部署至 Cloudflare Workers / Vercel。\\n1.解锁全部天气功能\\n2.替换空气质量数据\\n3.添加下一小时降水数据\\n4.添加天气数据
+#!desc = 本项目是对 NSRingo/WeatherKit 的自托管优化重构版本，与 Apple Inc. 无官方关联。支持独立自部署至 Cloudflare Workers / Vercel。\\n1.解锁全部天气功能\\n2.替换空气质量数据\\n3.添加下一小时降水数据\\n4.添加天气数据
 #!author = meme[https://github.com/meme]
 #!homepage = https://github.com/meme-lau/weatherkit-proxy
-#!icon = https://developer.apple.com/assets/elements/icons/weatherkit/weatherkit-128x128.png
+#!icon = https://raw.githubusercontent.com/meme-lau/weatherkit-proxy/main/assets/weatherkit-proxy.svg
 #!system = iOS,iPadOS,macOS,watchOS
 #!date = __DATE__
 #!system_version = 18

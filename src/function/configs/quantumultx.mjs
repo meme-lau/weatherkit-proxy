@@ -3,10 +3,10 @@
 // [filter_local] 不支持 AND/OR/PROTOCOL/DST-PORT，故 QUIC/UDP 443 拦截规则无法表达，已省略。
 // url 307 使用 (.*) + $1 捕获组保留原始路径与查询参数（建议导入后真机实测 availability/weather 接口）。
 export default `#!name = WeatherKit-Proxy
-#!desc = 本项目是对 NSRingo/WeatherKit 的自托管优化重构版本。支持独立自部署至 Cloudflare Workers / Vercel。\\n1.解锁全部天气功能\\n2.替换空气质量数据\\n3.添加下一小时降水数据\\n4.添加天气数据
+#!desc = 本项目是对 NSRingo/WeatherKit 的自托管优化重构版本，与 Apple Inc. 无官方关联。支持独立自部署至 Cloudflare Workers / Vercel。\\n1.解锁全部天气功能\\n2.替换空气质量数据\\n3.添加下一小时降水数据\\n4.添加天气数据
 #!author = meme[https://github.com/meme]
 #!homepage = https://github.com/meme-lau/weatherkit-proxy
-#!icon = https://developer.apple.com/assets/elements/icons/weatherkit/weatherkit-128x128.png
+#!icon = https://raw.githubusercontent.com/meme-lau/weatherkit-proxy/main/assets/weatherkit-proxy.svg
 #!category = Weather
 #!date = __DATE__
 

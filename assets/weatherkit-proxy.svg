@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Weather Proxy</title>
+  <desc id="desc">A monochrome cloud with bidirectional proxy arrows</desc>
+  <rect width="256" height="256" rx="48" fill="#080808"/>
+  <rect x="10" y="10" width="236" height="236" rx="40" fill="none" stroke="#fff" stroke-width="6"/>
+  <path fill="#fff" d="M58 165c-25 0-45-20-45-45 0-21 15-39 35-44 8-31 36-54 70-54 28 0 53 16 65 40 5-2 10-3 16-3 25 0 45 20 45 45s-20 45-45 45H58z"/>
+  <g fill="none" stroke="#080808" stroke-width="11" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M62 98h126l-17-17m17 17-17 17"/>
+    <path d="M188 130H62l17-17m-17 17 17 17"/>
+  </g>
+  <g fill="#fff">
+    <path d="M72 187h18l7 36H79z"/>
+    <path d="M119 177h18l7 46h-18z"/>
+    <path d="M166 187h18l-7 36h-18z"/>
+  </g>
+</svg>
