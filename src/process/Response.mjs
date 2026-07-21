@@ -23,7 +23,7 @@ export async function Response($request, $response, context = {}) {
     // 解析格式
     const FORMAT = ($response.headers?.["Content-Type"] ?? $response.headers?.["content-type"])?.split(";")?.[0];
     Console.debug("FORMAT:", FORMAT);
-    // 打印 Apple 原始响应日志
+    // 打印上游 WeatherKit 原始响应日志
     Console.debug("[Apple Response]", url.pathname, `status: ${$response.status}`, `content-type: ${FORMAT}`);
     if (url.pathname.startsWith("/api/v1/airQualityScale/")) {
         try {
@@ -149,9 +149,9 @@ export async function Response($request, $response, context = {}) {
                             // 路径判断
                             if (url.pathname.startsWith("/api/v2/weather/")) {
                                 body = WeatherKit2.decode(ByteBuffer, parameters.dataSets);
-                                // // 打印 Apple 原始 airQuality 数据
+                                // // 打印上游 WeatherKit 原始 airQuality 数据
                                 // if (body?.airQuality) {
-                                //     Console.log(`[Apple 原始 airQuality]`, JSON.stringify(body.airQuality, null, 2));
+                                //     Console.log(`[WeatherKit 上游 airQuality]`, JSON.stringify(body.airQuality, null, 2));
                                 // }
                                 // 优先使用 Hono.js 预构建的环境实例，避免重复创建
                                 const enviroments = preEnviroments || {
@@ -221,7 +221,7 @@ export async function Response($request, $response, context = {}) {
                                     }
                                 });
 
-                                // 仅在确有替换/剥离时重编码，未触及的产品直接透传 Apple 原始字节。
+                                // 仅在确有替换/剥离时重编码，未触及的产品直接透传上游原始字节。
                                 if (replacementDataSets.size) {
                                     const WeatherData = WeatherKit2.encodeRootOverlay(Builder, ByteBuffer, replacementDataSets, body);
                                     Builder.finish(WeatherData);

@@ -61,7 +61,7 @@ test("ColorfulClouds still replaces supported daily fields", async () => {
     // 降水概率应被 provider 覆盖（彩云能可靠提供）
     assert.equal(appleDay.precipitationChance, 80);
     assert.equal(appleDay.daytimeForecast.precipitationChance, 70);
-    // 累计量仍保留 Apple 原始成对数据，未被 provider 覆盖
+    // 累计量仍保留上游原始成对数据，未被 provider 覆盖
     assert.equal(appleDay.precipitationAmount, 19);
 });
 

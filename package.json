@@ -3,7 +3,7 @@
     "type": "module",
     "organizationName": "meme",
     "displayName": "WeatherKit-Proxy",
-    "description": "iOS 18 & macOS 15 & watchOS 11\n1. 解锁全部天气功能\n2. 替换空气质量数据\n3. 添加下一小时降水数据\n4. 支持 Cloudflare Workers 独立自托管部署与代理配置一键动态下载",
+    "description": "iOS 18 & macOS 15 & watchOS 11\n1. 天气响应代理与兼容处理\n2. 按配置替换空气质量数据\n3. 按配置补充下一小时降水数据\n4. 支持 Cloudflare Workers 独立自托管部署与代理配置一键动态下载",
     "homepage": "https://github.com/meme-lau/weatherkit-proxy",
     "openUrl": "https://github.com/meme-lau/weatherkit-proxy",
     "icon": "https://raw.githubusercontent.com/meme-lau/weatherkit-proxy/main/assets/weatherkit-proxy.svg",

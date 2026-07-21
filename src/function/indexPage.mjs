@@ -1099,7 +1099,7 @@ export function renderIndex(host, protocol) {
                 indexProvider,
                 // 今天与昨天走同一路径，保证对比口径一致
                 yesterdayIndexProvider: indexProvider,
-                // 不转换：不注入污染物、不触发替换，彻底保留 Apple 原始数据
+                // 不转换：不注入污染物、不触发替换，完整保留上游原始数据
                 pollutantsProvider: isNone ? "WeatherKit" : (isQWeather ? "QWeather" : "ColorfulClouds"),
                 yesterdayPollutantsProvider: isQWeather ? "QWeather" : "ColorfulCloudsCN",
                 indexReplace: isNone ? [] : (adv.indexReplace ? [adv.indexReplace] : []),
@@ -1369,7 +1369,7 @@ export function renderIndex(host, protocol) {
                 ? window.location.origin + window.location.pathname + "?config=" + base64
                 : window.location.origin + window.location.pathname;
             
-            const shareText = "🚀 推荐一个超棒的开源项目：WeatherKit-Proxy，一键为 Apple WeatherKit 提供国内天气与空气质量数据源支持！\\n- ⚡ 零客户端脚本代理，支持一键拉起配置导入。\\n- ⚙️ 支持 Cloudflare Workers / Vercel 免费独立部署。\\n- 🎨 内置可视化配置中心，支持彩云/和风天气数据源混合搭配。\\n👉 不想部署？直接使用我的配置页（支持一键导入）：" + shareUrl + "\\n👉 想要自行部署？项目 GitHub 地址：https://github.com/meme-lau/weatherkit-proxy";
+            const shareText = "WeatherKit-Proxy 是一个独立开源的 WeatherKit 响应代理与兼容处理项目，可按配置融合国内天气与空气质量数据源。\\n- ⚡ 无客户端本地 JS 重写逻辑，支持一键拉起配置导入。\\n- ⚙️ 支持 Cloudflare Workers / Vercel 独立部署。\\n- 🎨 内置可视化配置中心，支持彩云/和风天气数据源混合搭配。\\n👉 配置页（支持一键导入）：" + shareUrl + "\\n👉 自行部署与项目说明：https://github.com/meme-lau/weatherkit-proxy";
 
             navigator.clipboard.writeText(shareText).then(() => {
                 showToast("推荐文案与配置链接已复制到剪贴板！");

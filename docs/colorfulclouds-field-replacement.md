@@ -1,10 +1,10 @@
-# 彩云天气替换 Apple WeatherKit 返回值分析
+# 彩云天气替换 WeatherKit 响应字段分析
 
-> 以 ColorfulClouds（彩云天气）为例，分析 iRingo WeatherKit 代理服务对 Apple WeatherKit API 响应的字段替换情况。
+> 以 ColorfulClouds（彩云天气）为例，分析本项目对 WeatherKit 上游响应字段的可配置替换方式。
 
 ## 概述
 
-项目拦截 WeatherKit FlatBuffer 响应，解码后用彩云天气数据选择性替换部分字段，再重新编码返回客户端。
+项目接收 WeatherKit FlatBuffer 响应，解码后按配置用彩云天气数据选择性替换部分字段，再重新编码返回客户端。
 
 **合并策略：**
 - `currentWeather` — Object spread 覆盖
@@ -12,7 +12,7 @@
 - `forecastNextHour` — 整体替换（仅在原数据为空时注入）
 - `airQuality` — 多阶段独立注入（污染物 / AQI 指数 / 昨日对比各自可配不同 provider）
 
-**核心思路：** 彩云提供「天况 + 温湿度 + 风 + 降水 + 能见度 + 气压」这些中国用户更关心的实时/预报数据；日出日落、月相、UV 指数、雪量等则保留苹果原始数据。
+**核心思路：** 彩云提供「天况 + 温湿度 + 风 + 降水 + 能见度 + 气压」这些中国用户更关心的实时/预报数据；日出日落、月相、UV 指数、雪量等则保留上游响应原值。
 
 ---
 

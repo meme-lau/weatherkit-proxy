@@ -1,11 +1,11 @@
 // Stash 覆写配置 — 经 /conf/weatherkit-proxy.stoverride 下发。
 export default `name: "WeatherKit-Proxy"
 desc: |-
-  本项目是对 NSRingo/WeatherKit 的自托管优化重构版本，与 Apple Inc. 无官方关联。支持独立自部署至 Cloudflare Workers / Vercel。
-  1.解锁全部天气功能
-  2.替换空气质量数据
-  3.添加下一小时降水数据
-  4.添加天气数据
+  基于 Apache-2.0 许可的 NSRingo/WeatherKit 上游实现进行适配，与 Apple Inc. 无官方关联。支持自行部署至 Cloudflare Workers / Vercel。
+  1.天气响应代理与兼容处理
+  2.按配置替换空气质量数据
+  3.按配置补充下一小时降水数据
+  4.按配置融合天气数据
 author: |-
   meme[https://github.com/meme]
 homepage: "https://github.com/meme-lau/weatherkit-proxy"

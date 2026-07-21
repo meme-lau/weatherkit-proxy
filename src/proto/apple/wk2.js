@@ -1,9 +1,12 @@
-// src/proto/apple/wk2.js
-// Auto-generated from response.bundle.js (v3.1.0)
-// This module contains the Flatbuffer schema definitions for Apple WeatherKit2
+// FlatBuffers compatibility definitions for WeatherKit response messages.
 //
-// NOTE: This file was reconstructed from a minified bundle.
-// Variable names are shortened but logic is preserved.
+// Adapted from response.bundle.js in the Apache-2.0-licensed
+// NSRingo/WeatherKit v3.1.0 release and modified for weatherkit-proxy.
+// See THIRD_PARTY_NOTICES.md for source and license information.
+// SPDX-License-Identifier: Apache-2.0
+//
+// This independent project is not affiliated with or endorsed by Apple Inc.
+// Apple and WeatherKit are trademarks of Apple Inc.
 
 // ============================================================
 // Enum definitions
@@ -555,7 +558,7 @@ export const ImportanceType = {
 // Flatbuffer classes
 // ============================================================
 
-// ByteBuffer typed-array helpers (from response.bundle.js)
+// ByteBuffer typed-array helpers adapted from the same upstream artifact.
 const int32 = new Int32Array(2);
 const float32 = new Float32Array(int32.buffer);
 const float64 = new Float64Array(int32.buffer);

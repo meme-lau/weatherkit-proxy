@@ -1,8 +1,10 @@
 # <img src="assets/weatherkit-proxy.svg" width="32" height="32" align="center" alt="Weather Proxy 黑白图标"> WeatherKit-Proxy
 
-这是一个对 [NSRingo/WeatherKit](https://github.com/NSRingo/WeatherKit) 进行重构与改造的项目，使其支持自主独立部署在 **Cloudflare Workers**、**Cloudflare Pages** 与 **Vercel**。移除了所有本地繁琐的脚本代理依赖，提供一键独立部署与代理配置的动态下载。
+这是一个对 [NSRingo/WeatherKit](https://github.com/NSRingo/WeatherKit) 进行重构与改造的项目，使其支持自主独立部署在 **Cloudflare Workers**、**Cloudflare Pages** 与 **Vercel**。项目移除了客户端本地 JS 重写逻辑，并提供独立部署与代理配置的动态下载。
 
-本项目包含基于 NSRingo/WeatherKit 公开构建产物进行适配和修改的部分；第三方来源与许可证信息请参阅 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。本项目为独立第三方项目，与 Apple Inc. 不存在官方关联、认可或赞助关系。
+本项目包含对 NSRingo/WeatherKit 中 Apache-2.0 许可的源码及发布构建产物进行适配和修改的部分；其中 `wk2.js` 的上游来源为 v3.1.0 发布产物。具体来源与许可证信息请参阅 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。本项目为独立第三方项目，与 Apple Inc. 不存在官方关联、认可或赞助关系。
+
+> 本项目不提供 Apple 服务、账号、授权凭证或数据访问权限。使用者应仅处理其依法且依约有权访问的数据，并自行遵守适用法律、相关服务条款及第三方数据源的使用要求。
 
 ---
 
