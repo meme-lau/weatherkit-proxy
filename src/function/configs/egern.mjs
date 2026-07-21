@@ -183,9 +183,11 @@ url_rewrites:
 - match: ^https?://weatherkit.apple.com/api/v1/availability/
   location: https://__PLAIN_HOST__/api/v1/availability/
   status_code: 307
+# __AIR_QUALITY_SCALE_PROXY_START__
 - match: ^https?://weatherkit.apple.com/api/v1/airQualityScale/
   location: https://__PLAIN_HOST__/api/v1/airQualityScale/
   status_code: 307
+# __AIR_QUALITY_SCALE_PROXY_END__
 - match: ^https?://weatherkit.apple.com/api/v2/weather/
   location: https://__HOST__/api/v2/weather/
   status_code: 307

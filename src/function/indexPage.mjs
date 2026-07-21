@@ -809,6 +809,14 @@ export function renderIndex(host, protocol) {
                         </div>
                     </div>
 
+                    <div class="checkbox-group">
+                        <input class="checkbox-input" type="checkbox" id="proxyAirQualityScale">
+                        <label class="checkbox-label" for="proxyAirQualityScale">
+                            <strong>[空气质量标尺] 启用代理</strong><br>
+                            <span class="form-desc" style="margin-top:0.2rem">将 WeatherKit 的 airQualityScale 请求转发到本服务，以便 Apple 标尺接口不可用时使用本地兼容响应。默认关闭。</span>
+                        </label>
+                    </div>
+
                     <button class="btn btn-primary btn-next" id="saveConfigBtn">保存并应用配置</button>
                 </div>
             </section>
@@ -857,36 +865,42 @@ export function renderIndex(host, protocol) {
                 name: "Shadowrocket",
                 icon: "https://fastly.jsdelivr.net/gh/NSRingo/engineering-solutions@main/packages/doc-ui/src/module-install/icons/shadowrocket.png",
                 filename: "weatherkit-proxy.srmodule",
+                airQualityScaleFilename: "weatherkit-proxy-aqs.srmodule",
                 scheme: "shadowrocket://install?module="
             },
             {
                 name: "Surge",
                 icon: "https://fastly.jsdelivr.net/gh/NSRingo/engineering-solutions@main/packages/doc-ui/src/module-install/icons/surge.png",
                 filename: "weatherkit-proxy.sgmodule",
+                airQualityScaleFilename: "weatherkit-proxy-aqs.sgmodule",
                 scheme: "surge:///install-module?url="
             },
             {
                 name: "Loon",
                 icon: "https://fastly.jsdelivr.net/gh/NSRingo/engineering-solutions@main/packages/doc-ui/src/module-install/icons/loon.png",
                 filename: "weatherkit-proxy.plugin",
+                airQualityScaleFilename: "weatherkit-proxy-aqs.plugin",
                 scheme: "loon://import?plugin="
             },
             {
                 name: "Stash",
                 icon: "https://fastly.jsdelivr.net/gh/NSRingo/engineering-solutions@main/packages/doc-ui/src/module-install/icons/stash.png",
                 filename: "weatherkit-proxy.stoverride",
+                airQualityScaleFilename: "weatherkit-proxy-aqs.stoverride",
                 scheme: "stash://install-override?url="
             },
             {
                 name: "Egern",
                 icon: "https://fastly.jsdelivr.net/gh/NSRingo/engineering-solutions@main/packages/doc-ui/src/module-install/icons/egern.png",
                 filename: "weatherkit-proxy.yaml",
+                airQualityScaleFilename: "weatherkit-proxy-aqs.yaml",
                 scheme: "egern:///modules/new?url="
             },
             {
                 name: "Quantumult X",
                 icon: "https://fastly.jsdelivr.net/gh/NSRingo/engineering-solutions@main/packages/doc-ui/src/module-install/icons/qx.png",
                 filename: "weatherkit-proxy.snippet",
+                airQualityScaleFilename: "weatherkit-proxy-aqs.snippet",
                 scheme: "quantumult-x:///add-resource?remote-resource=",
                 // schemeWrap 指定把下载链接包装进 {"<键>":[downloadUrl]} 后整体 encodeURIComponent，
                 // 对应 QX 的 add-resource?remote-resource= 接口（rewrite_remote 远程重写资源）。
@@ -917,6 +931,7 @@ export function renderIndex(host, protocol) {
         const replaceDaily = document.getElementById("replaceDaily");
         const replaceHourly = document.getElementById("replaceHourly");
         const edgeCache = document.getElementById("edgeCache");
+        const proxyAirQualityScale = document.getElementById("proxyAirQualityScale");
         
         // 选项卡与控制
         const stepConfig = document.getElementById("stepConfig");
@@ -1136,6 +1151,7 @@ export function renderIndex(host, protocol) {
             let config = {};
             if (currentPreset === "Caiyun") {
                 config = {
+                    Proxy: { AirQualityScale: proxyAirQualityScale.checked },
                     EdgeCache: false,
                     Weather: { Provider: "ColorfulClouds" },
                     NextHour: { Provider: "ColorfulClouds" },
@@ -1154,6 +1170,7 @@ export function renderIndex(host, protocol) {
                 };
             } else if (currentPreset === "QWeather") {
                 config = {
+                    Proxy: { AirQualityScale: proxyAirQualityScale.checked },
                     EdgeCache: false,
                     Weather: { Provider: "QWeather" },
                     NextHour: { Provider: "QWeather" },
@@ -1175,6 +1192,7 @@ export function renderIndex(host, protocol) {
                 };
             } else {
                 config = {
+                    Proxy: { AirQualityScale: proxyAirQualityScale.checked },
                     EdgeCache: presetData.Advanced.edgeCache,
                     Weather: { 
                         Provider: presetData.Advanced.weatherProvider,
@@ -1253,6 +1271,7 @@ export function renderIndex(host, protocol) {
                                 !isDefaultUnitsReplace ||
                                 presetData.Advanced.pollutantsUnitsMode !== "Scale";
             }
+            hasCustomData = hasCustomData || proxyAirQualityScale.checked;
             
             // 保存/更新本地浏览器存储 (LocalStorage)
             const storageState = {
@@ -1305,9 +1324,10 @@ export function renderIndex(host, protocol) {
             }).join("");
 
             const item = rawItems[selectedClientIndex];
+            const configFilename = proxyAirQualityScale.checked ? item.airQualityScaleFilename : item.filename;
             const downloadUrl = base64 
-                ? baseUrl + '/conf/' + base64 + '/' + item.filename 
-                : baseUrl + '/conf/' + item.filename;
+                ? baseUrl + '/conf/' + base64 + '/' + configFilename
+                : baseUrl + '/conf/' + configFilename;
             const importUrl = item.scheme
                 ? item.schemeWrap
                     ? item.scheme + encodeURIComponent(JSON.stringify({ [item.schemeWrap]: [downloadUrl] }))
@@ -1453,7 +1473,7 @@ export function renderIndex(host, protocol) {
             aqiStandard, aqiSource, forceCalculate,
             forceCNPrimaryPollutants, allowOverRange, replaceWhenCurrentChange,
             weatherReplace, pollutantsUnitsMode,
-            indexReplace, unitsReplace, replaceDaily, replaceHourly, edgeCache
+            indexReplace, unitsReplace, replaceDaily, replaceHourly, edgeCache, proxyAirQualityScale
         ];
         inputs.forEach(input => {
             if (input) {
@@ -1497,6 +1517,7 @@ export function renderIndex(host, protocol) {
             presetData.Advanced.replaceDaily = decoded.Weather?.ReplaceDaily === true;
             presetData.Advanced.replaceHourly = decoded.Weather?.ReplaceHourly === true;
             presetData.Advanced.edgeCache = decoded.EdgeCache === true;
+            proxyAirQualityScale.checked = decoded.Proxy?.AirQualityScale === true;
 
             const indexReplaceArr = decoded.AirQuality?.Current?.Index?.Replace ?? ["HJ6332012"];
             presetData.Advanced.indexReplace = indexReplaceArr[0] || "HJ6332012";

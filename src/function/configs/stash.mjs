@@ -39,5 +39,7 @@ http:
   - "weatherkit.apple.com"
   url-rewrite:
   - ^https?:\\/\\/weatherkit\\.apple\\.com\\/api\\/v1\\/availability\\/ https://__PLAIN_HOST__/api/v1/availability/ transparent
+# __AIR_QUALITY_SCALE_PROXY_START__
   - ^https?:\\/\\/weatherkit\\.apple\\.com\\/api\\/v1\\/airQualityScale\\/ https://__PLAIN_HOST__/api/v1/airQualityScale/ transparent
+# __AIR_QUALITY_SCALE_PROXY_END__
   - ^https?:\\/\\/weatherkit\\.apple\\.com\\/api\\/v2\\/weather\\/ https://__HOST__/api/v2/weather/ transparent`;

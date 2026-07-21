@@ -32,6 +32,9 @@ const SCALE_DISPLAY_LABEL = {
 // ─── HJ6332012 中国国标 AQI ────────────────────────────────────────────────────
 
 const HJ6332012 = {
+    numerical: true,
+    range: [0, 500],
+    version: 1,
     displayName: {
         "zh-Hans-CN": "AQI (CN)",
         "zh-Hant-HK": "AQI (CN)",
@@ -58,7 +61,7 @@ const HJ6332012 = {
                 "en-US": "Good",
             },
             recommendation: {
-                "zh-Hans-CN": "空气质量令人满意，基本无空气污染。",
+                "zh-Hans-CN": "各类人群可正常活动。",
                 "zh-Hant-HK": "空氣質量令人滿意，基本無空氣污染。",
                 "en-US": "Air quality is satisfactory, and air pollution poses little or no risk.",
             },
@@ -73,7 +76,7 @@ const HJ6332012 = {
                 "en-US": "Moderate",
             },
             recommendation: {
-                "zh-Hans-CN": "空气质量可接受，但某些污染物可能对极少数异常敏感人群健康有较弱影响。",
+                "zh-Hans-CN": "极少数异常敏感人群应减少户外活动。",
                 "zh-Hant-HK": "空氣質量可接受，但某些污染物可能對極少數異常敏感人群健康有較弱影響。",
                 "en-US": "Air quality is acceptable. However, there may be a risk for some people, particularly those who are unusually sensitive to air pollution.",
             },
@@ -88,7 +91,7 @@ const HJ6332012 = {
                 "en-US": "Unhealthy for Sensitive Groups",
             },
             recommendation: {
-                "zh-Hans-CN": "敏感人群症状有轻度加剧，健康人群出现刺激症状。建议儿童、老年人及心脏病、呼吸系统疾病患者应减少长时间、高强度的户外锻炼。",
+                "zh-Hans-CN": "儿童、老年人及心脏病、呼吸系统疾病患者应减少长时间、高强度的户外锻炼。",
                 "zh-Hant-HK": "敏感人群症狀有輕度加劇，健康人群出現刺激症狀。建議兒童、老年人及心臟病、呼吸系統疾病患者應減少長時間、高強度的戶外鍛煉。",
                 "en-US": "Members of sensitive groups may experience health effects. The general public is less likely to be affected. Children, the elderly, and people with heart or respiratory diseases should reduce prolonged or heavy outdoor exertion.",
             },
@@ -103,7 +106,7 @@ const HJ6332012 = {
                 "en-US": "Unhealthy",
             },
             recommendation: {
-                "zh-Hans-CN": "进一步加剧敏感人群症状，可能对心脏和呼吸系统有影响。儿童、老年人及心脏病、呼吸系统疾病患者应避免长时间、高强度的户外锻炼，一般人群适量减少户外运动。",
+                "zh-Hans-CN": "儿童、老年人及心脏病、呼吸系统疾病患者应减少长时间、高强度的户外锻炼，一般人群适量减少户外运动。",
                 "zh-Hant-HK": "進一步加劇敏感人群症狀，可能對心臟和呼吸系統有影響。兒童、老年人及心臟病、呼吸系統疾病患者應避免長時間、高強度的戶外鍛煉，一般人群適量減少戶外運動。",
                 "en-US":
                     "Some members of the general public may experience health effects; members of sensitive groups may experience more serious health effects. Children, the elderly, and people with heart or respiratory diseases should avoid prolonged or heavy outdoor exertion. Everyone else should reduce outdoor exertion.",
@@ -119,7 +122,7 @@ const HJ6332012 = {
                 "en-US": "Very Unhealthy",
             },
             recommendation: {
-                "zh-Hans-CN": "心脏病和肺病患者症状显著加剧，运动耐受力降低，健康人群普遍出现症状。儿童、老年人和病人应停留在室内，避免体力消耗，一般人群应避免户外活动。",
+                "zh-Hans-CN": "儿童、老年人及心脏病、肺病患者应留在室内，停止户外运动，一般人群应减少户外运动。",
                 "zh-Hant-HK": "心臟病和肺病症狀顯著加劇，運動耐受力降低，健康人群普遍出現症狀。兒童、老年人和病人應停留在室內，避免體力消耗，一般人群應避免戶外活動。",
                 "en-US": "Health warnings of emergency conditions. The entire population is more likely to be affected. Children, the elderly, and the ill should stay indoors. Everyone else should avoid outdoor exertion.",
             },
@@ -134,7 +137,7 @@ const HJ6332012 = {
                 "en-US": "Hazardous",
             },
             recommendation: {
-                "zh-Hans-CN": "健康人群运动耐受力降低，有明显强烈症状，提前出现某些疾病。儿童、老年人和病人应当留在室内，避免体力消耗。一般人群应避免户外活动。",
+                "zh-Hans-CN": "儿童、老年人和病人应当留在室内，避免体力消耗，一般人群应避免户外活动。",
                 "zh-Hant-HK": "健康人群運動耐受力降低，有明顯強烈症狀，提前出現某些疾病。兒童、老年人和病人應當留在室內，避免體力消耗。一般人群應避免戶外活動。",
                 "en-US": "Health alert: everyone may experience more serious health effects. Children, the elderly, and the ill should remain indoors. Everyone else should avoid outdoor exertion.",
             },
@@ -157,6 +160,9 @@ const HJ6332012 = {
 // ─── EPA_NowCast 美国 AQI ──────────────────────────────────────────────────────
 
 const EPA_NOWCAST = {
+    numerical: true,
+    range: [0, 500],
+    version: 1,
     displayName: {
         "zh-Hans-CN": "AQI (US)",
         "zh-Hant-HK": "AQI (US)",
@@ -176,14 +182,14 @@ const EPA_NOWCAST = {
         {
             range: [0, 50],
             glyph: "aqi.low",
-            colors: ["#04DE71"],
+            colors: ["#04De71"],
             categoryName: {
-                "zh-Hans-CN": "优",
+                "zh-Hans-CN": "好",
                 "zh-Hant-HK": "優",
                 "en-US": "Good",
             },
             recommendation: {
-                "zh-Hans-CN": "空气质量令人满意，基本无空气污染。",
+                "zh-Hans-CN": "空气质量令人满意，对健康几乎没有危害。",
                 "zh-Hant-HK": "空氣質量令人滿意，基本無空氣污染。",
                 "en-US": "Air quality is satisfactory, and air pollution poses little or no risk.",
             },
@@ -193,12 +199,12 @@ const EPA_NOWCAST = {
             glyph: "aqi.medium",
             colors: ["#FFE620"],
             categoryName: {
-                "zh-Hans-CN": "良",
+                "zh-Hans-CN": "中等",
                 "zh-Hant-HK": "良",
                 "en-US": "Moderate",
             },
             recommendation: {
-                "zh-Hans-CN": "空气质量可接受，但某些污染物可能对极少数异常敏感人群健康有较弱影响。",
+                "zh-Hans-CN": "空气质量可以接受；但是，这个范围内的污染物可能会对极少数人的健康造成中等程度的影响。对臭氧或颗粒污染物异常敏感的人可能会出现呼吸系统症状。",
                 "zh-Hant-HK": "空氣質量可接受，但某些污染物可能對極少數異常敏感人群健康有較弱影響。",
                 "en-US": "Air quality is acceptable. However, there may be a risk for some people, particularly those who are unusually sensitive to air pollution.",
             },
@@ -208,12 +214,12 @@ const EPA_NOWCAST = {
             glyph: "aqi.high",
             colors: ["#FF9500"],
             categoryName: {
-                "zh-Hans-CN": "敏感人群不健康",
+                "zh-Hans-CN": "不适于敏感人群",
                 "zh-Hant-HK": "敏感人群不健康",
                 "en-US": "Unhealthy for Sensitive Groups",
             },
             recommendation: {
-                "zh-Hans-CN": "敏感人群症状有轻度加剧，健康人群出现刺激症状。建议儿童、老年人及心脏病、呼吸系统疾病患者应减少户外活动。",
+                "zh-Hans-CN": "敏感人群的健康可能会受到影响，但一般人群不太可能受到影响。",
                 "zh-Hant-HK": "敏感人群症狀有輕度加劇，健康人群出現刺激症狀。建議兒童、老年人及心臟病、呼吸系統疾病患者應減少戶外活動。",
                 "en-US": "Members of sensitive groups may experience health effects. The general public is less likely to be affected.",
             },
@@ -228,7 +234,7 @@ const EPA_NOWCAST = {
                 "en-US": "Unhealthy",
             },
             recommendation: {
-                "zh-Hans-CN": "进一步加剧敏感人群症状，可能对心脏和呼吸系统有影响。一般人群应减少户外活动。",
+                "zh-Hans-CN": "每个人的健康都可能开始受到影响。敏感人群的健康可能会受到更严重的影响。",
                 "zh-Hant-HK": "進一步加劇敏感人群症狀，可能對心臟和呼吸系統有影響。一般人群應減少戶外活動。",
                 "en-US": "Some members of the general public may experience health effects; members of sensitive groups may experience more serious health effects.",
             },
@@ -243,7 +249,7 @@ const EPA_NOWCAST = {
                 "en-US": "Very Unhealthy",
             },
             recommendation: {
-                "zh-Hans-CN": "健康警告：所有人都可能出现更严重的健康影响。",
+                "zh-Hans-CN": "健康警报已生效。每个人的健康都可能会受到更严重的影响。",
                 "zh-Hant-HK": "健康警告：所有人都可能出現更嚴重的健康影響。",
                 "en-US": "Health alert: everyone may experience more serious health effects.",
             },
@@ -258,7 +264,7 @@ const EPA_NOWCAST = {
                 "en-US": "Hazardous",
             },
             recommendation: {
-                "zh-Hans-CN": "健康警告：所有人都可能出现严重的健康影响。应避免所有户外活动。",
+                "zh-Hans-CN": "紧急情况下的健康警报已生效。每个人的健康越来越可能会受到严重影响。",
                 "zh-Hant-HK": "健康警告：所有人都可能出現嚴重的健康影響。應避免所有戶外活動。",
                 "en-US": "Health warning of emergency conditions: everyone is more likely to be affected. Avoid all outdoor exertion.",
             },
@@ -281,6 +287,8 @@ const EPA_NOWCAST = {
 // ─── EU EAQI 欧洲 ──────────────────────────────────────────────────────────────
 
 const EU_EAQI = {
+    numerical: false,
+    range: [0, 60],
     displayName: {
         "zh-Hans-CN": "EAQI (EU)",
         "zh-Hant-HK": "EAQI (EU)",
@@ -292,43 +300,43 @@ const EU_EAQI = {
         "en-US": "EAQI",
     },
     longDisplayName: {
-        "zh-Hans-CN": "欧洲(EAQI)",
-        "zh-Hant-HK": "歐洲(EAQI)",
-        "en-US": "Europe(EAQI)",
+        "zh-Hans-CN": "欧盟(EAQI)",
+        "zh-Hant-HK": "歐盟(EAQI)",
+        "en-US": "European Union(EAQI)",
     },
     categories: [
         {
-            range: [0, 20],
+            range: [0, 9],
             glyph: "aqi.low",
             colors: ["#2094FA"],
             categoryName: {
-                "zh-Hans-CN": "非常好",
-                "zh-Hant-HK": "非常好",
-                "en-US": "Very Good",
-            },
-            recommendation: {
-                "zh-Hans-CN": "享受户外活动。",
-                "zh-Hant-HK": "享受戶外活動。",
-                "en-US": "Enjoy your usual outdoor activities.",
-            },
-        },
-        {
-            range: [21, 40],
-            glyph: "aqi.low",
-            colors: ["#04DE71"],
-            categoryName: {
-                "zh-Hans-CN": "好",
-                "zh-Hant-HK": "好",
+                "zh-Hans-CN": "优",
+                "zh-Hant-HK": "優",
                 "en-US": "Good",
             },
             recommendation: {
-                "zh-Hans-CN": "享受户外活动。",
-                "zh-Hant-HK": "享受戶外活動。",
+                "zh-Hans-CN": "空气质量优。可照常进行户外活动。",
+                "zh-Hant-HK": "空氣質素優。可照常進行戶外活動。",
+                "en-US": "Air quality is good. Enjoy your usual outdoor activities.",
+            },
+        },
+        {
+            range: [10, 19],
+            glyph: "aqi.low",
+            colors: ["#04DE71"],
+            categoryName: {
+                "zh-Hans-CN": "尚可",
+                "zh-Hant-HK": "尚可",
+                "en-US": "Fair",
+            },
+            recommendation: {
+                "zh-Hans-CN": "可照常进行户外活动。",
+                "zh-Hant-HK": "可照常進行戶外活動。",
                 "en-US": "Enjoy your usual outdoor activities.",
             },
         },
         {
-            range: [41, 60],
+            range: [20, 29],
             glyph: "aqi.medium",
             colors: ["#FFE620"],
             categoryName: {
@@ -337,51 +345,67 @@ const EU_EAQI = {
                 "en-US": "Moderate",
             },
             recommendation: {
-                "zh-Hans-CN": "敏感人群应考虑减少户外活动。",
-                "zh-Hant-HK": "敏感人群應考慮減少戶外活動。",
-                "en-US": "Sensitive individuals should consider reducing outdoor exertion.",
+                "zh-Hans-CN": "敏感人群若出现不适症状，应考虑减少高强度的户外活动。",
+                "zh-Hant-HK": "敏感人群若出現不適症狀，應考慮減少高強度的戶外活動。",
+                "en-US": "Sensitive individuals who experience symptoms should consider reducing intense outdoor activities.",
             },
         },
         {
-            range: [61, 80],
+            range: [30, 39],
             glyph: "aqi.high",
-            colors: ["#FF9500"],
+            colors: ["#FA114F"],
             categoryName: {
                 "zh-Hans-CN": "差",
                 "zh-Hant-HK": "差",
                 "en-US": "Poor",
             },
             recommendation: {
-                "zh-Hans-CN": "敏感人群应减少户外活动。",
-                "zh-Hant-HK": "敏感人群應減少戶外活動。",
-                "en-US": "Sensitive groups should reduce outdoor exertion.",
+                "zh-Hans-CN": "如果你出现眼睛疼痛、咳嗽或咽喉痛等症状，应考虑减少高强度的户外活动。敏感人群应考虑减少体能活动（尤其是户外活动以及出现不适症状时）。",
+                "zh-Hant-HK": "如果你出現眼睛疼痛、咳嗽或咽喉痛等症狀，應考慮減少高強度的戶外活動。敏感人群應考慮減少體能活動（尤其是戶外活動以及出現不適症狀時）。",
+                "en-US": "Consider reducing intense outdoor activities if you experience symptoms. Sensitive groups should consider reducing physical activities, especially outdoors.",
             },
         },
         {
-            range: [81, 100],
+            range: [40, 49],
             glyph: "aqi.high",
-            colors: ["#FA114F"],
+            colors: ["#80172B"],
             categoryName: {
-                "zh-Hans-CN": "非常差",
-                "zh-Hant-HK": "非常差",
+                "zh-Hans-CN": "较差",
+                "zh-Hant-HK": "較差",
                 "en-US": "Very Poor",
             },
             recommendation: {
-                "zh-Hans-CN": "所有人应减少户外活动。",
-                "zh-Hant-HK": "所有人應減少戶外活動。",
-                "en-US": "Everyone should reduce outdoor exertion.",
+                "zh-Hans-CN": "如果你出现眼睛疼痛、咳嗽或咽喉痛等症状，应考虑减少高强度的户外活动。敏感人群应减少体能活动（尤其是户外活动以及出现不适症状时）。",
+                "zh-Hant-HK": "如果你出現眼睛疼痛、咳嗽或咽喉痛等症狀，應考慮減少高強度的戶外活動。敏感人群應減少體能活動（尤其是戶外活動以及出現不適症狀時）。",
+                "en-US": "Consider reducing intense outdoor activities if you experience symptoms. Sensitive groups should reduce physical activities, especially outdoors.",
+            },
+        },
+        {
+            range: [50, 60],
+            glyph: "aqi.high",
+            colors: ["#AA00FF"],
+            categoryName: {
+                "zh-Hans-CN": "非常差",
+                "zh-Hant-HK": "非常差",
+                "en-US": "Extremely Poor",
+            },
+            recommendation: {
+                "zh-Hans-CN": "减少户外体能活动。敏感人群应避免进行户外体能活动。",
+                "zh-Hant-HK": "減少戶外體能活動。敏感人群應避免進行戶外體能活動。",
+                "en-US": "Reduce outdoor physical activities. Sensitive groups should avoid outdoor physical activities.",
             },
         },
     ],
     gradient: {
         stops: [
             { location: 0, color: "#2094FA" },
-            { location: 10, color: "#2094FA" },
-            { location: 30, color: "#04DE71" },
-            { location: 50, color: "#FFE620" },
-            { location: 70, color: "#FF9500" },
-            { location: 90, color: "#FA114F" },
-            { location: 100, color: "#FA114F" },
+            { location: 5, color: "#2094FA" },
+            { location: 15, color: "#04DE71" },
+            { location: 25, color: "#FFE620" },
+            { location: 35, color: "#FA114F" },
+            { location: 45, color: "#80172B" },
+            { location: 55, color: "#AA00FF" },
+            { location: 60, color: "#AA00FF" },
         ],
     },
 };
@@ -389,6 +413,9 @@ const EU_EAQI = {
 // ─── UBA 德国 LQI ──────────────────────────────────────────────────────────────
 
 const UBA = {
+    numerical: false,
+    range: [1, 5],
+    version: 1,
     displayName: {
         "zh-Hans-CN": "LQI (DE)",
         "zh-Hant-HK": "LQI (DE)",
@@ -406,37 +433,37 @@ const UBA = {
     },
     categories: [
         {
-            range: [0, 0.99],
+            range: [1, 1],
             glyph: "aqi.low",
-            colors: ["#04DE71"],
+            colors: ["#2094FA"],
             categoryName: {
                 "zh-Hans-CN": "非常好",
                 "zh-Hant-HK": "非常好",
                 "en-US": "Very Good",
             },
             recommendation: {
-                "zh-Hans-CN": "可以自由进行户外活动。",
-                "zh-Hant-HK": "可以自由進行戶外活動。",
-                "en-US": "You can freely engage in outdoor activities.",
+                "zh-Hans-CN": "最适合户外活动的条件。",
+                "zh-Hant-HK": "最適合戶外活動的條件。",
+                "en-US": "The best conditions for outdoor activities.",
             },
         },
         {
-            range: [1, 1.99],
+            range: [2, 2],
             glyph: "aqi.low",
-            colors: ["#58E156"],
+            colors: ["#04DE71"],
             categoryName: {
                 "zh-Hans-CN": "好",
                 "zh-Hant-HK": "好",
                 "en-US": "Good",
             },
             recommendation: {
-                "zh-Hans-CN": "可以自由进行户外活动。",
-                "zh-Hant-HK": "可以自由進行戶外活動。",
-                "en-US": "You can usually engage in outdoor activities without restriction.",
+                "zh-Hans-CN": "享受你的户外活动。预计不会对健康产生不利影响。",
+                "zh-Hant-HK": "享受你的戶外活動。預計不會對健康產生不利影響。",
+                "en-US": "Enjoy your outdoor activities. Adverse health effects are not expected.",
             },
         },
         {
-            range: [2, 2.99],
+            range: [3, 3],
             glyph: "aqi.medium",
             colors: ["#FFE620"],
             categoryName: {
@@ -445,50 +472,50 @@ const UBA = {
                 "en-US": "Moderate",
             },
             recommendation: {
-                "zh-Hans-CN": "敏感人群应减少户外活动。",
-                "zh-Hant-HK": "敏感人群應減少戶外活動。",
-                "en-US": "Sensitive individuals should reduce outdoor exertion.",
+                "zh-Hans-CN": "短期内不太可能对健康产生不利影响。然而，空气污染物的组合和长期接触单个污染物可能会带来风险。花粉等刺激性物质会加剧空气污染物的影响，因此敏感人群（例如哮喘患者）更有可能受到不利的健康影响。",
+                "zh-Hant-HK": "短期內不太可能對健康產生不利影響。然而，空氣污染物的組合和長期接觸單個污染物可能會帶來風險。花粉等刺激性物質會加劇空氣污染物的影響，因此敏感人群（例如哮喘患者）更有可能受到不利的健康影響。",
+                "en-US": "Adverse short-term health effects are unlikely. However, combinations of pollutants and long-term exposure may pose risks, especially for sensitive groups.",
             },
         },
         {
-            range: [3, 3.99],
+            range: [4, 4],
             glyph: "aqi.high",
-            colors: ["#FF9500"],
+            colors: ["#FA114F"],
             categoryName: {
                 "zh-Hans-CN": "差",
                 "zh-Hant-HK": "差",
                 "en-US": "Poor",
             },
             recommendation: {
-                "zh-Hans-CN": "敏感人群应避免户外活动。",
-                "zh-Hant-HK": "敏感人群應避免戶外活動。",
-                "en-US": "Sensitive groups should avoid outdoor exertion.",
+                "zh-Hans-CN": "敏感人群可能会受到不利的健康影响，应避免剧烈的户外体能活动。当存在更多污染物时，不太敏感的人群可能会受到不利的健康影响。",
+                "zh-Hant-HK": "敏感人群可能會受到不利的健康影響，應避免劇烈的戶外體能活動。當存在更多污染物時，不太敏感的人群可能會受到不利的健康影響。",
+                "en-US": "Sensitive groups may experience adverse health effects and should avoid intense outdoor physical activities.",
             },
         },
         {
-            // 末档容纳超标值（与计算分类 [4, Infinity] 对齐；#buildGenericScale 会把 Infinity 归一为 9999）。
-            range: [4, Number.POSITIVE_INFINITY],
+            range: [5, 5],
             glyph: "aqi.high",
-            colors: ["#FA114F"],
+            colors: ["#80172B"],
             categoryName: {
                 "zh-Hans-CN": "非常差",
                 "zh-Hant-HK": "非常差",
                 "en-US": "Very Poor",
             },
             recommendation: {
-                "zh-Hans-CN": "所有人应减少户外活动。",
-                "zh-Hant-HK": "所有人應減少戶外活動。",
-                "en-US": "Everyone should reduce outdoor exertion.",
+                "zh-Hans-CN": "可能会对健康造成负面影响。敏感人群或呼吸系统疾病患者应避免剧烈的户外体能活动。",
+                "zh-Hant-HK": "可能會對健康造成負面影響。敏感人群或呼吸系統疾病患者應避免劇烈的戶外體能活動。",
+                "en-US": "Adverse health effects are possible. Sensitive groups or people with respiratory conditions should avoid intense outdoor physical activities.",
             },
         },
     ],
     gradient: {
         stops: [
-            { location: 0, color: "#04DE71" },
-            { location: 1, color: "#58E156" },
-            { location: 2, color: "#FFE620" },
-            { location: 3, color: "#FF9500" },
+            { location: 0, color: "#2094FA" },
+            { location: 1, color: "#2094FA" },
+            { location: 2, color: "#04DE71" },
+            { location: 3, color: "#FFE620" },
             { location: 4, color: "#FA114F" },
+            { location: 5, color: "#80172B" },
         ],
     },
 };
@@ -764,11 +791,9 @@ export default class AirQualityScale {
         const categories = [];
         for (const band of scaleDef.categories) {
             const [min, max] = band.range;
-            // 对于整数范围（AQI 0-50, 51-100 等），每个 category 一个条目
-            // 对于小数范围（UBA 0-0.99, 1-1.99 等），也每个 category 一个条目
             categories.push({
                 categoryNumber: categories.length + 1,
-                range: [min, max === Number.POSITIVE_INFINITY ? 9999 : max],
+                range: [min, max],
                 color: band.colors[0],
                 categoryName: i18n(band.categoryName, normalizeLang),
                 recommendation: i18n(band.recommendation, normalizeLang),
@@ -783,11 +808,11 @@ export default class AirQualityScale {
             longDisplayName: i18n(scaleDef.longDisplayName, normalizeLang),
             displayLabel: i18n(SCALE_DISPLAY_LABEL, normalizeLang),
             language: normalizeScaleLanguage(language),
-            version: 1,
+            ...(scaleDef.version === undefined ? {} : { version: scaleDef.version }),
             aqi: {
-                numerical: true,
+                numerical: scaleDef.numerical,
                 ascending: true,
-                range: scaleDef === UBA ? [0, 4] : scaleDef === EU_EAQI ? [0, 100] : [0, 500],
+                range: scaleDef.range,
                 categories,
                 gradient: scaleDef.gradient,
             },
