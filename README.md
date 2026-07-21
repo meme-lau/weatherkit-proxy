@@ -98,7 +98,7 @@ npm run deploy:vercel
 
 | 配置中心主页 | 自定义参数配置面板 |
 | :---: | :---: |
-| <img src="3c8a01019ba9969d481fa773173e5c90.jpg" width="290" alt="配置中心主页" /> | <img src="a32af4e4e75a677a6931c6b3bdc986df.jpg" width="290" alt="配置面板" /> |
+| <img src="assets/3c8a01019ba9969d481fa773173e5c90.jpg" width="290" alt="配置中心主页" /> | <img src="assets/a32af4e4e75a677a6931c6b3bdc986df.jpg" width="290" alt="配置面板" /> |
 
 ### 🎨 核心功能特点
 
