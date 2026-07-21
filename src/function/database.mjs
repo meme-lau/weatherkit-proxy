@@ -3,7 +3,7 @@ export default {
         Settings: {
             // 只有代理会修改的产品允许被配置关闭；其余 Apple 数据集必须始终透传。
             DataSets: ["airQuality", "currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour"],
-            Weather: { Replace: ["CN"], ReplaceDaily: false, ReplaceHourly: false, Provider: "ColorfulClouds" },
+            Weather: { Replace: ["CN"], ReplaceDaily: true, ReplaceHourly: true, Provider: "ColorfulClouds" },
             NextHour: { Provider: "ColorfulClouds" },
             AirQuality: {
                 Current: { Pollutants: { Provider: "ColorfulClouds", Units: { Replace: [], Mode: "Scale" } }, Index: { Replace: ["HJ6332012"], Provider: "ColorfulCloudsCN", ForceCNPrimaryPollutants: false } },
