@@ -866,42 +866,36 @@ export function renderIndex(host, protocol) {
                 name: "Shadowrocket",
                 icon: "https://fastly.jsdelivr.net/gh/NSRingo/engineering-solutions@main/packages/doc-ui/src/module-install/icons/shadowrocket.png",
                 filename: "weatherkit-proxy.srmodule",
-                airQualityScaleDisabledFilename: "weatherkit-proxy-no-aqs.srmodule",
                 scheme: "shadowrocket://install?module="
             },
             {
                 name: "Surge",
                 icon: "https://fastly.jsdelivr.net/gh/NSRingo/engineering-solutions@main/packages/doc-ui/src/module-install/icons/surge.png",
                 filename: "weatherkit-proxy.sgmodule",
-                airQualityScaleDisabledFilename: "weatherkit-proxy-no-aqs.sgmodule",
                 scheme: "surge:///install-module?url="
             },
             {
                 name: "Loon",
                 icon: "https://fastly.jsdelivr.net/gh/NSRingo/engineering-solutions@main/packages/doc-ui/src/module-install/icons/loon.png",
                 filename: "weatherkit-proxy.plugin",
-                airQualityScaleDisabledFilename: "weatherkit-proxy-no-aqs.plugin",
                 scheme: "loon://import?plugin="
             },
             {
                 name: "Stash",
                 icon: "https://fastly.jsdelivr.net/gh/NSRingo/engineering-solutions@main/packages/doc-ui/src/module-install/icons/stash.png",
                 filename: "weatherkit-proxy.stoverride",
-                airQualityScaleDisabledFilename: "weatherkit-proxy-no-aqs.stoverride",
                 scheme: "stash://install-override?url="
             },
             {
                 name: "Egern",
                 icon: "https://fastly.jsdelivr.net/gh/NSRingo/engineering-solutions@main/packages/doc-ui/src/module-install/icons/egern.png",
                 filename: "weatherkit-proxy.yaml",
-                airQualityScaleDisabledFilename: "weatherkit-proxy-no-aqs.yaml",
                 scheme: "egern:///modules/new?url="
             },
             {
                 name: "Quantumult X",
                 icon: "https://fastly.jsdelivr.net/gh/NSRingo/engineering-solutions@main/packages/doc-ui/src/module-install/icons/qx.png",
                 filename: "weatherkit-proxy.snippet",
-                airQualityScaleDisabledFilename: "weatherkit-proxy-no-aqs.snippet",
                 scheme: "quantumult-x:///add-resource?remote-resource=",
                 // schemeWrap 指定把下载链接包装进 {"<键>":[downloadUrl]} 后整体 encodeURIComponent，
                 // 对应 QX 的 add-resource?remote-resource= 接口（rewrite_remote 远程重写资源）。
@@ -1329,7 +1323,7 @@ export function renderIndex(host, protocol) {
             }).join("");
 
             const item = rawItems[selectedClientIndex];
-            const configFilename = proxyAirQualityScale.checked ? item.filename : item.airQualityScaleDisabledFilename;
+            const configFilename = item.filename;
             const downloadUrl = base64 
                 ? baseUrl + '/conf/' + base64 + '/' + configFilename
                 : baseUrl + '/conf/' + configFilename;

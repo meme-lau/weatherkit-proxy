@@ -3,7 +3,7 @@ import ColorfulClouds from "./class/ColorfulClouds.mjs";
 import HonoWorkerAdapter from "./class/HonoWorkerAdapter.mjs";
 import QWeather from "./class/QWeather.mjs";
 import buildSettings from "./function/buildSettings.mjs";
-import configs from "./function/configs/index.mjs";
+import configs, { renderClientConfig } from "./function/configs/index.mjs";
 import database from "./function/database.mjs";
 import filterWeatherKitDataSets from "./function/filterWeatherKitDataSets.mjs";
 import { renderIndex } from "./function/indexPage.mjs";
@@ -63,11 +63,22 @@ app.get("/", async c => {
 // 配置下载通用处理逻辑
 async function handleConfigDownload(c, filename, configParam) {
     const filenameParam = (filename || "").toLowerCase();
-    const configContent = configs[filenameParam];
+    const defaultConfigContent = configs[filenameParam];
 
-    if (!configContent) {
+    if (!defaultConfigContent) {
         return c.text("Configuration not found", 404);
     }
+
+    let proxyAirQualityScale = true;
+    if (configParam) {
+        try {
+            const pageConfig = JSON.parse(decodeBase64Config(configParam));
+            proxyAirQualityScale = pageConfig?.Proxy?.AirQualityScale !== false;
+        } catch (e) {
+            console.warn("Failed to read airQualityScale proxy option from config:", e);
+        }
+    }
+    const configContent = renderClientConfig(filenameParam, proxyAirQualityScale);
 
     // 获取当前的主机名
     const host = c.req.header("host");
