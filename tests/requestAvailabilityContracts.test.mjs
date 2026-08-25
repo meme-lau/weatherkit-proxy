@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import buildSettings from "../src/function/buildSettings.mjs";
 import database from "../src/function/database.mjs";
-import filterWeatherKitDataSets from "../src/function/filterWeatherKitDataSets.mjs";
 import mergeWeatherKitAvailability from "../src/function/mergeWeatherKitAvailability.mjs";
 import parseWeatherKitURL from "../src/function/parseWeatherKitURL.mjs";
 import app from "../src/Hono.js";
@@ -105,15 +105,28 @@ test("timezone fallback enables third-party prefetch for country-less mainland r
     }
 });
 
-test("dataset switches only remove known injectable products", () => {
-    const requested = ["airQuality", "news", "forecastPrecipitation", "forecastNextHour", "currentWeather"];
-    const enabled = ["airQuality", "currentWeather"];
-
-    assert.deepEqual(filterWeatherKitDataSets(requested, enabled, database.WeatherKit.Settings.DataSets), ["airQuality", "news", "forecastPrecipitation", "currentWeather"]);
+test("default processed datasets and FlatBuffer root mappings match the release contract", () => {
     assert.deepEqual(database.WeatherKit.Settings.DataSets, ["airQuality", "currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour", "weatherAlerts"]);
+    assert.deepEqual(database.WeatherKit.Configs.DataSets, {
+        airQuality: "airQuality",
+        currentWeather: "currentWeather",
+        forecastDaily: "forecastDaily",
+        forecastHourly: "forecastHourly",
+        forecastNextHour: "forecastNextHour",
+        news: "news",
+        weatherAlerts: "weatherAlerts",
+        weatherChange: "weatherChanges",
+        trendComparison: "historicalComparisons",
+        locationInfo: "locationInfo",
+    });
 });
 
-test("Hono 转发层保留未来数据集并移除已禁用的可注入产品", async () => {
+test("comma-separated dataSet settings normalize to a flat array", () => {
+    const { Settings } = buildSettings(database, { DataSets: "airQuality,currentWeather" });
+    assert.deepEqual(Settings.DataSets, ["airQuality", "currentWeather"]);
+});
+
+test("Hono 转发层不使用代理处理开关裁剪 Apple 原始 dataSets", async () => {
     const originalFetch = globalThis.fetch;
     let forwardedUrl;
     globalThis.fetch = async input => {
@@ -125,7 +138,7 @@ test("Hono 转发层保留未来数据集并移除已禁用的可注入产品", 
         const requested = "airQuality,news,forecastPrecipitation,forecastNextHour,currentWeather";
         const response = await app.request(`https://proxy.example/api/v2/weather/en-US/22.5/114?dataSets=${requested}&DataSets=airQuality,currentWeather`);
         assert.equal(response.status, 200);
-        assert.deepEqual(new URL(forwardedUrl).searchParams.get("dataSets").split(","), ["airQuality", "news", "forecastPrecipitation", "currentWeather"]);
+        assert.equal(new URL(forwardedUrl).searchParams.get("dataSets"), requested);
     } finally {
         globalThis.fetch = originalFetch;
     }

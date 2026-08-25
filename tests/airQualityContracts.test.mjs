@@ -41,7 +41,9 @@ test("AQ scale 辅助函数保留含点 alias 并迁移旧版本", () => {
     assert.equal(normalized.scale, "EU.EAQI");
     assert.equal(normalized.index, stale.index);
     assert.deepEqual(normalized.pollutants, stale.pollutants);
-    assert.equal(AirQuality.NormalizeScaleIdentifier({ scale: "HK.AQHI.2414" }).scale, "HK.AQHI.2414");
+    assert.equal(AirQuality.NormalizeScaleIdentifier({ scale: "HK.AQHI.2414" }).scale, "HK.AQHI");
+    assert.equal(AirQuality.ScaleMatches("EU.EAQI.2414", "EU.EAQI"), true);
+    assert.equal(AirQuality.ScaleMatches("EU.EAQI.beta", "EU.EAQI"), false);
 });
 
 test("空值或不可用等级不参与空气质量对比", () => {

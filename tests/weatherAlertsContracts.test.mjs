@@ -216,6 +216,8 @@ test("WeatherAlerts.Build 归一化中英文发布标题并保留 CAP 事件名"
         ["浦东新区气象台发布暴雨橙色预警信号。", "暴雨", "暴雨橙色预警"],
         ["臺北市氣象台發布大雨黃色預警信號。", "大雨", "大雨黃色預警"],
         ["天津市气象台更新雷雨大风蓝色预警", "天津市气象台更新雷雨大风蓝色预警", "雷雨大风蓝色预警"],
+        ["江西省气象台2026年08月13日20时45分变更暴雨橙色预警信号[II/严重]", "暴雨", "暴雨橙色预警"],
+        ["香港天文台變更雷雨黃色預警信號【黃色】", "雷雨", "雷雨黃色預警"],
         ["Nanjing Meteorological Observatory issues a blue typhoon warning", "Typhoon", "Blue Typhoon Warning"],
         ["Pudong New Area Meteorological Observatory issued an orange rainstorm warning", "Rainstorm", "Orange Rainstorm Warning"],
         ["Severe Thunderstorm Warning issued August 10 at 2:26AM EDT until August 10 at 3:30AM EDT by NWS Grand Rapids MI", "Severe Thunderstorm Warning", "Severe Thunderstorm Warning"],

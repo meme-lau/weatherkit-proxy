@@ -281,6 +281,20 @@ test("Summary splits a summaryCondition transition occurring at the last used mi
     assert.equal(conditions.length, summaries.length);
 });
 
+test("Summary includes the final minute when calculating segment maxima", () => {
+    const minutes = ForecastNextHour.Minute(
+        [
+            { precipitationChance: 10, precipitationIntensity: 0.2, startTime: BASE_TIME },
+            { precipitationChance: 90, precipitationIntensity: 2, startTime: BASE_TIME + 60 },
+        ],
+        "未来一小时有雨",
+    );
+
+    const [summary] = ForecastNextHour.Summary(minutes);
+    assert.equal(summary.precipitationChance, 90);
+    assert.equal(summary.precipitationIntensity, 2);
+});
+
 test("Condition preserves empty output for missing or unsupported non-alternating summaries", () => {
     assert.deepEqual(ForecastNextHour.Condition([]), []);
     assert.deepEqual(ForecastNextHour.Condition(makeSummaries("RRC")), []);

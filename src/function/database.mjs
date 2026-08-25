@@ -19,6 +19,18 @@ export default {
                 v1: ["currentWeather", "dailyForecast", "hourlyForecast", "minuteForecast", "weatherAlerts"],
                 v2: ["airQuality", "currentWeather", "forecastDaily", "forecastHourly", "forecastPeriodic", "historicalComparisons", "weatherChanges", "forecastNextHour", "weatherAlerts", "weatherAlertNotifications", "news"],
             },
+            DataSets: {
+                airQuality: "airQuality",
+                currentWeather: "currentWeather",
+                forecastDaily: "forecastDaily",
+                forecastHourly: "forecastHourly",
+                forecastNextHour: "forecastNextHour",
+                news: "news",
+                weatherAlerts: "weatherAlerts",
+                weatherChange: "weatherChanges",
+                trendComparison: "historicalComparisons",
+                locationInfo: "locationInfo",
+            },
         },
     },
     Default: {

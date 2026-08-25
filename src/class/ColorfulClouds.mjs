@@ -198,9 +198,13 @@ export default class ColorfulClouds {
                                 temporarilyUnavailable: false,
                                 sourceType: "MODELED",
                             };
-                            body.result.minutely.probability = body.result.minutely.probability.map(probability => {
-                                const p = probability <= 1 ? probability * 100 : probability;
-                                return Math.min(100, Math.max(0, Math.round(p)));
+                            const probabilities = Array.isArray(body.result.minutely.probability) ? body.result.minutely.probability : [];
+                            // 彩云历史响应存在 0–1 和 0–100 两种概率量纲。按整组数据判断，
+                            // 避免百分制数组中的 1% 被逐项误判为 100%。
+                            const usesRatioScale = probabilities.length > 0 && probabilities.every(probability => Number.isFinite(Number(probability)) && Number(probability) >= 0 && Number(probability) <= 1);
+                            body.result.minutely.probability = probabilities.map(probability => {
+                                const normalized = Number(probability) * (usesRatioScale ? 100 : 1);
+                                return Number.isFinite(normalized) ? Math.min(100, Math.max(0, Math.round(normalized))) : 0;
                             });
                             let serverTime = body?.server_time;
                             if (!serverTime) serverTime = Math.trunc(Date.now() / 1000);

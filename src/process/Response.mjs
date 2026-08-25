@@ -135,8 +135,11 @@ export async function Response($request, $response, context = {}) {
             switch (FORMAT) {
                 case "application/vnd.apple.flatbuffer": {
                     const parameters = preParameters || parseWeatherKitURL(url);
+                    const configuredDataSets = Array.isArray(Settings?.DataSets) ? Settings.DataSets : database.WeatherKit.Settings.DataSets;
+                    const dataSetMap = Configs?.DataSets ?? database.WeatherKit.Configs.DataSets;
+                    const rootNames = configuredDataSets.map(dataSet => dataSetMap[dataSet]).filter(Boolean);
                     const shouldReplace = Settings?.Weather?.Replace?.includes(parameters.country);
-                    const shouldProcessWeatherAlerts = parameters.dataSets?.includes("weatherAlerts") && WeatherAlerts.CanUseProvider(Settings);
+                    const shouldProcessWeatherAlerts = configuredDataSets.includes("weatherAlerts") && WeatherAlerts.CanUseProvider(Settings);
                     if (!shouldReplace && !shouldProcessWeatherAlerts) {
                         Console.log(`[proxy] 国家 ${parameters.country} 无需替换，直接跳过 FlatBuffer 编解码。`);
                         break;
@@ -150,7 +153,7 @@ export async function Response($request, $response, context = {}) {
                         case "weatherkit.apple.com":
                             // 路径判断
                             if (url.pathname.startsWith("/api/v2/weather/")) {
-                                body = WeatherKit2.decode(ByteBuffer, parameters.dataSets);
+                                body = WeatherKit2.decode(ByteBuffer, rootNames);
                                 // // 打印上游 WeatherKit 原始 airQuality 数据
                                 // if (body?.airQuality) {
                                 //     Console.log(`[WeatherKit 上游 airQuality]`, JSON.stringify(body.airQuality, null, 2));
@@ -166,9 +169,10 @@ export async function Response($request, $response, context = {}) {
                                 // 未触及的 root 产品（含 iOS 27 新增 schema）作为不透明表原样透传，避免丢失。
                                 const replacementDataSets = new Set();
                                 const originalForecastNextHour = body.forecastNextHour;
+                                const processableDataSets = (shouldReplace ? configuredDataSets : configuredDataSets.filter(dataSet => dataSet === "weatherAlerts")).filter(dataSet => body?.[dataSet] !== undefined || parameters.dataSets.includes(dataSet));
 
                                 await Promise.all(
-                                    parameters.dataSets.map(async dataSet => {
+                                    processableDataSets.map(async dataSet => {
                                         switch (dataSet) {
                                             case "airQuality": {
                                                 const originalAirQuality = body.airQuality;
@@ -333,8 +337,8 @@ async function InjectForecastDaily(forecastDaily, Settings, enviroments, preFetc
                 break;
             }
             case "ColorfulClouds": {
-                const dailysteps = forecastDaily.days?.length || 11;
-                const begin = forecastDaily.days?.[0]?.forecastStart || undefined;
+                const dailysteps = forecastDaily?.days?.length || 11;
+                const begin = forecastDaily?.days?.[0]?.forecastStart;
                 newForecastDaily = await enviroments.colorfulClouds.Daily(dailysteps, begin);
                 break;
             }
@@ -378,8 +382,8 @@ async function InjectForecastHourly(forecastHourly, Settings, enviroments, preFe
             }
             case "ColorfulClouds": {
                 Console.debug("✅ InjectForecastHourly ColorfulClouds");
-                const hourlysteps = forecastHourly.hours?.length || 273;
-                const begin = forecastHourly.hours?.[0]?.forecastStart || undefined;
+                const hourlysteps = forecastHourly?.hours?.length || 273;
+                const begin = forecastHourly?.hours?.[0]?.forecastStart;
                 newForecastHourly = await enviroments.colorfulClouds.ForecastHourly(hourlysteps, begin);
                 break;
             }
@@ -403,6 +407,12 @@ async function InjectForecastHourly(forecastHourly, Settings, enviroments, preFe
  */
 async function InjectForecastNextHour(forecastNextHour, Settings, enviroments, preFetchedData) {
     Console.debug("☑️ InjectForecastNextHour");
+
+    if (!Settings?.Weather?.Replace?.includes(enviroments.country)) {
+        Console.info("InjectForecastNextHour", `Unreplaced country: ${enviroments.country}`);
+        Console.debug("✅ InjectForecastNextHour");
+        return forecastNextHour;
+    }
 
     // if (forecastNextHour) {
     //     Console.debug("✅ InjectForecastNextHour");
@@ -438,7 +448,11 @@ async function InjectForecastNextHour(forecastNextHour, Settings, enviroments, p
         const isClear = !hasVisiblePrecipitation || newForecastNextHour?.condition?.[0]?.forecastToken === "CLEAR";
         if (isClear) {
             // 调整晴天覆盖策略：如果彩云判断是晴天，但 Apple 原始数据存在有效降水，则保留 Apple 原数据
-            const originalHasPrecipitation = forecastNextHour?.summary?.some(s => s.condition && s.condition !== "CLEAR" && s.condition !== 0);
+            const isPrecipitationCondition = condition => condition !== undefined && condition !== null && condition !== "" && condition !== "CLEAR" && condition !== 0;
+            const originalHasPrecipitation =
+                forecastNextHour?.summary?.some(summary => isPrecipitationCondition(summary?.condition)) ||
+                forecastNextHour?.minutes?.some(minute => Number(minute?.precipitationIntensity) > 0 || Number(minute?.perceivedPrecipitationIntensity) > 0) ||
+                forecastNextHour?.condition?.some(condition => isPrecipitationCondition(condition?.beginCondition) || isPrecipitationCondition(condition?.endCondition));
             if (originalHasPrecipitation) {
                 Console.info("InjectForecastNextHour", "彩云判断为晴天，但 Apple 原始数据存在有效降水，保留 Apple 原数据");
             } else {
@@ -461,7 +475,6 @@ async function InjectForecastNextHour(forecastNextHour, Settings, enviroments, p
  * Apple bytes untouched.
  */
 async function InjectWeatherAlerts(weatherAlerts, Settings, enviroments, parameters, requestHeaders = {}) {
-    if (!Settings?.Weather?.Replace?.includes(parameters.country)) return weatherAlerts;
     if (!weatherAlerts?.metadata) return weatherAlerts;
     if (!Array.isArray(weatherAlerts.alerts) || !weatherAlerts.alerts.length) return weatherAlerts;
 
@@ -495,6 +508,7 @@ async function InjectWeatherAlerts(weatherAlerts, Settings, enviroments, paramet
 async function InjectAirQuality(airQuality, Settings, enviroments, preFetched = {}) {
     // Step1. 修复污染物单位，并将 Apple 内置 AQ scale 归一为稳定的无版本标识
     airQuality = AirQuality.FixPollutantsUnits(airQuality);
+    airQuality = AirQuality.NormalizeScaleIdentifier(airQuality);
 
     // Step2. 判断原始污染物是否为空，并在需要时注入污染物数据
     const isPollutantEmpty = !Array.isArray(airQuality?.pollutants) || airQuality.pollutants.length === 0;

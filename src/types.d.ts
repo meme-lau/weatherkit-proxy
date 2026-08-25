@@ -1,36 +1,13 @@
 export interface Settings {
-    DataSets?: {
-        /**
-         * [数据集] 替换地区
-         *
-         * 正则表达式，只替换指定地区的数据集。
-         *
-         * @defaultValue "CN|HK|MO|TW|IT|LT|MT|FR|SK|NO|BY|IS|CZ|SI|DE|ES|UA|DK|PL|FI|SE|HR|RU|RO|PT|EE|RS|AT|GR|HU|FJ|GU|MH|NC|TR|BH|SA|ID|IR|SG|OM|PH|IN|KH|CY|MY|VN|KW|TH|KR|KP|CA|BS|KY|MX|PA|MQ|CU|BM|PR|CW|GP|NI|BR|GF|CO|GY|PY|AR"
-         */
-        Replace?: string;
-        /**
-         * [数据集]
-         *
-         * 选中的数据集会被包含在请求中。
-         *
-         * @remarks
-         *
-         * Possible values:
-         * - `'airQuality'` - 空气质量
-         * - `'currentWeather'` - 当前天气
-         * - `'forecastDaily'` - 每日预报
-         * - `'forecastHourly'` - 每小时预报
-         * - `'forecastNextHour'` - 未来一小时降水强度
-         * - `'locationInfo'` - 位置信息
-         * - `'news'` - 新闻
-         * - `'historicalComparisons'` - 历史对比
-         * - `'weatherAlerts'` - 天气预警
-         * - `'weatherChanges'` - 天气变化
-         *
-         * @defaultValue ["airQuality","currentWeather","forecastDaily","forecastHourly","forecastNextHour","locationInfo","news","historicalComparisons","weatherAlerts","weatherChanges"]
-         */
-        Value?: ("airQuality" | "currentWeather" | "forecastDaily" | "forecastHourly" | "forecastNextHour" | "locationInfo" | "news" | "historicalComparisons" | "weatherAlerts" | "weatherChanges")[];
-    };
+    /**
+     * [数据集]
+     *
+     * 选择需要由代理解析并处理的数据集。该设置不会改写 Apple 请求中的
+     * `dataSets`；未选择的 FlatBuffer root slot 保持原始字节透传。
+     *
+     * @defaultValue ["airQuality","currentWeather","forecastDaily","forecastHourly","forecastNextHour","weatherAlerts"]
+     */
+    DataSets?: ("airQuality" | "currentWeather" | "forecastDaily" | "forecastHourly" | "forecastNextHour" | "news" | "weatherAlerts" | "weatherChange" | "trendComparison" | "locationInfo")[];
     Weather?: {
         /**
          * [天气] 替换范围

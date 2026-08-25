@@ -11,6 +11,28 @@ test("Response passes through original bytes when the country is not replaced", 
     assert.deepEqual(new Uint8Array(res.body), originalBytes);
 });
 
+test("Response processes a configured root that exists outside the request dataSets", async () => {
+    const originalBytes = createWeatherRoot([4, 5]);
+    const preFetched = { forecastNextHour: Promise.resolve(makeVisibleNextHour("CONFIGURED_PROVIDER")) };
+    const Settings = { DataSets: ["forecastNextHour"], Weather: { Replace: ["CN"] }, NextHour: { Provider: "ColorfulClouds" } };
+
+    const res = await Response({ url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-CN/22.5/114.0?country=CN&dataSets=news" }, { bodyBytes: originalBytes, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, status: 200 }, { preFetched, Settings });
+
+    const all = WeatherKit2.decode(new ByteBuffer(new Uint8Array(res.body)), "all");
+    assert.equal(all.forecastNextHour.metadata.providerName, "CONFIGURED_PROVIDER");
+    assert.ok(all.news);
+});
+
+test("Response leaves requested roots untouched when no dataSets are configured", async () => {
+    const originalBytes = createWeatherRoot([4, 5]);
+    const preFetched = { forecastNextHour: Promise.resolve(makeVisibleNextHour("UNUSED_PROVIDER")) };
+    const Settings = { DataSets: [], Weather: { Replace: ["CN"] }, NextHour: { Provider: "ColorfulClouds" } };
+
+    const res = await Response({ url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-CN/22.5/114.0?country=CN&dataSets=forecastNextHour,news" }, { bodyBytes: originalBytes, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, status: 200 }, { preFetched, Settings });
+
+    assert.deepEqual(new Uint8Array(res.body), originalBytes);
+});
+
 test("Response removes forecastNextHour and preserves untouched products when prefetch says CLEAR", async () => {
     // 原始 Weather：airQuality(0)、currentWeather(1)、forecastNextHour(4)、news(5) 均存在（空表）
     const originalBytes = createWeatherRoot([0, 1, 4, 5]);
@@ -46,6 +68,24 @@ test("Response removes forecastNextHour and preserves untouched products when pr
     assert.ok(all.news); // 槽 5 保留（非可注入，作为不透明表保留，模拟 iOS 27 新增/未识别产品不丢失）
     assert.ok(all.airQuality); // 槽 0 保留
     assert.ok(all.currentWeather); // 槽 1 保留
+});
+
+test("Response keeps Apple forecastNextHour when provider says CLEAR but original minutes contain precipitation", async () => {
+    const originalBytes = createOriginalRainNextHour();
+    const preFetched = {
+        forecastNextHour: Promise.resolve({
+            ...makeVisibleNextHour("CLEAR_PROVIDER"),
+            condition: [{ forecastToken: "CLEAR", parameters: [], startTime: 0, endTime: 0, beginCondition: "CLEAR", endCondition: "CLEAR" }],
+            minutes: [],
+        }),
+    };
+    const Settings = { DataSets: ["forecastNextHour"], Weather: { Replace: ["CN"] }, NextHour: { Provider: "ColorfulClouds" } };
+
+    const res = await Response({ url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-CN/22.5/114.0?country=CN&dataSets=forecastNextHour" }, { bodyBytes: originalBytes, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, status: 200 }, { preFetched, Settings });
+
+    const all = WeatherKit2.decode(new ByteBuffer(new Uint8Array(res.body)), "all");
+    assert.equal(all.forecastNextHour.metadata.providerName, "APPLE_PROVIDER");
+    assert.ok(Math.abs(all.forecastNextHour.minutes[0].precipitationIntensity - 0.4) < 1e-6);
 });
 
 test("Response removes forecastNextHour when prefetch has only trace / possible precipitation (blank chart)", async () => {
@@ -165,6 +205,42 @@ function createWeatherRoot(presentSlots) {
 function createEmptyTable(builder) {
     builder.startObject(0);
     return builder.endObject();
+}
+
+function makeVisibleNextHour(providerName) {
+    return {
+        metadata: {
+            attributionUrl: "https://example.com",
+            expireTime: 1,
+            language: "zh",
+            latitude: 1,
+            longitude: 1,
+            providerName,
+            readTime: 1,
+            reportedTime: 1,
+            temporarilyUnavailable: false,
+            sourceType: "MODELED",
+        },
+        condition: [],
+        summary: [],
+        minutes: [{ startTime: 0, precipitationChance: 60, precipitationIntensity: 0.6, perceivedPrecipitationIntensity: 0.15 }],
+        forecastStart: 0,
+        forecastEnd: 60,
+    };
+}
+
+function createOriginalRainNextHour() {
+    const builder = new Builder(1024);
+    const root = WeatherKit2.encode(builder, "all", {
+        forecastNextHour: {
+            ...makeVisibleNextHour("APPLE_PROVIDER"),
+            condition: [],
+            summary: [],
+            minutes: [{ startTime: 0, precipitationChance: 80, precipitationIntensity: 0.4, perceivedPrecipitationIntensity: 0.2 }],
+        },
+    });
+    builder.finish(root);
+    return builder.asUint8Array().slice();
 }
 
 function createDailyAndHourlyWeather(forecastStart) {

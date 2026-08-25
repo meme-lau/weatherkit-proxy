@@ -208,7 +208,7 @@ export default class ForecastNextHour {
         const getRepresentativeCondition = counts => {
             const heavyRain = (counts["HEAVY_RAIN"] || 0) + (counts["HEAVY_SNOW"] || 0);
             const moderateRain = (counts["RAIN"] || 0) + (counts["SNOW"] || 0) + (counts["SLEET"] || 0);
-            const lightRain = (counts["DRIZZLE"] || 0);
+            const lightRain = counts["DRIZZLE"] || 0;
             const possibleRain = (counts["POSSIBLE_DRIZZLE"] || 0) + (counts["POSSIBLE_SLEET"] || 0);
 
             const totalMinutes = Object.values(counts).reduce((a, b) => a + b, 0);
@@ -219,7 +219,7 @@ export default class ForecastNextHour {
                 return counts["HEAVY_RAIN"] ? "HEAVY_RAIN" : "HEAVY_SNOW";
             }
             if (heavyRain + moderateRain >= threshold) {
-                return counts["SLEET"] ? "SLEET" : (counts["RAIN"] ? "RAIN" : "SNOW");
+                return counts["SLEET"] ? "SLEET" : counts["RAIN"] ? "RAIN" : "SNOW";
             }
             if (heavyRain + moderateRain + lightRain >= threshold) {
                 return "DRIZZLE";

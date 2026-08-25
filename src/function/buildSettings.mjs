@@ -1,4 +1,4 @@
-import { Console, get, set, merge } from "../utils/index.mjs";
+import { Console, get, merge, set } from "../utils/index.mjs";
 
 /**
  * 将字符串值转换为数字（如果是纯数字字符串）
@@ -48,7 +48,16 @@ function traverseObject(o, c) {
  */
 function string2array(Settings, path) {
     const setting = get(Settings, path);
-    if (!Array.isArray(setting)) set(Settings, path, setting ? [setting] : []);
+    if (Array.isArray(setting)) return;
+    if (typeof setting === "string" && setting.includes(",")) {
+        set(
+            Settings,
+            path,
+            setting.split(",").map(item => item.trim()),
+        );
+        return;
+    }
+    set(Settings, path, setting ? [setting] : []);
 }
 
 /**
@@ -63,11 +72,7 @@ function string2array(Settings, path) {
  */
 export default function buildSettings(database, queryArguments = {}) {
     // 1. 从 database 深拷贝合并默认 Settings（Default → WeatherKit）
-    const Settings = merge(
-        {},
-        database?.Default?.Settings,
-        database?.WeatherKit?.Settings,
-    );
+    const Settings = merge({}, database?.Default?.Settings, database?.WeatherKit?.Settings);
 
     // 2. 合并请求级参数（请求参数优先级最高）
     if (queryArguments && typeof queryArguments === "object") {
@@ -75,6 +80,7 @@ export default function buildSettings(database, queryArguments = {}) {
     }
 
     // 3. 规范化需要为数组的字段
+    string2array(Settings, "DataSets");
     string2array(Settings, "Weather.Replace");
     string2array(Settings, "AirQuality.Current.Index.Replace");
     string2array(Settings, "AirQuality.Current.Pollutants.Units.Replace");
@@ -98,11 +104,7 @@ export default function buildSettings(database, queryArguments = {}) {
     });
 
     // 5. 构建 Configs（深拷贝合并，并将 Locale/i18n 转为 Map）
-    const Configs = merge(
-        {},
-        database?.Default?.Configs,
-        database?.WeatherKit?.Configs,
-    );
+    const Configs = merge({}, database?.Default?.Configs, database?.WeatherKit?.Configs);
     if (Configs.Locale) Configs.Locale = new Map(Configs.Locale);
     if (Configs.i18n) {
         for (const type in Configs.i18n) {

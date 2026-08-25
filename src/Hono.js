@@ -7,7 +7,6 @@ import buildSettings from "./function/buildSettings.mjs";
 import { decodeConfigPayload } from "./function/configPayload.mjs";
 import configs, { renderClientConfig } from "./function/configs/index.mjs";
 import database from "./function/database.mjs";
-import filterWeatherKitDataSets from "./function/filterWeatherKitDataSets.mjs";
 import { renderIndex } from "./function/indexPage.mjs";
 import parseWeatherKitURL from "./function/parseWeatherKitURL.mjs";
 import { Response } from "./process/Response.mjs";
@@ -150,7 +149,7 @@ function parseQueryArguments(query = {}) {
 
 async function buildWeatherAlertsDetails(url, Settings, requestHeaders = {}) {
     const identifier = url.searchParams.get("ids");
-    const pageIdentifier = /^[\p{L}\p{N}._'-]+-[0-9]{9}$/u.test(String(identifier ?? "").trim());
+    const pageIdentifier = QWeather.IsWeatherAlertPageIdentifier(identifier);
     const coordinates = WeatherAlerts.ParseCoordinateIdentifier(identifier);
     if (!pageIdentifier && !coordinates) return null;
 
@@ -161,8 +160,6 @@ async function buildWeatherAlertsDetails(url, Settings, requestHeaders = {}) {
 
     const language = url.searchParams.get("lang")?.trim() || "zh-CN";
     const parameters = { country: url.searchParams.get("country")?.trim().toUpperCase() || "CN", language, version: "v1" };
-
-    if (!Settings?.Weather?.Replace?.includes(parameters.country)) return null;
 
     const sourceUrl = QWeather.BuildWeatherAlertPageURL(identifier, language)?.toString();
     const provider = new QWeather(parameters);
@@ -216,13 +213,8 @@ async function handleWeatherRequest(c, queryArguments = {}) {
             }
         }
 
-        // 配置仅能关闭代理会注入的产品；Apple 新增或代理不认识的数据集继续原样请求。
-        const requestedDataSets = url.searchParams.get("dataSets")?.split(",");
-        if (requestedDataSets) {
-            const filteredDataSets = filterWeatherKitDataSets(requestedDataSets, Settings?.DataSets, database.WeatherKit.Settings.DataSets);
-            url.searchParams.set("dataSets", filteredDataSets.join(","));
-            $request.url = url.toString();
-        }
+        // Settings.DataSets 只控制代理解析和注入哪些 FlatBuffer root slot。
+        // Apple 的原始 dataSets 请求必须保持不变，避免把客户端最低数据需求误当成代理处理范围。
         const parameters = parseWeatherKitURL(url);
         const enviroments = {
             colorfulClouds: new ColorfulClouds(parameters, Settings?.API?.ColorfulClouds?.Token || "Y2FpeXVuX25vdGlmeQ=="),

@@ -367,6 +367,23 @@ export default class AirQuality {
     // Apple 内置 scale 使用无版本 alias；仅自定义 scale 明确配置版本时才拼接。
     static ToWeatherKitScale = ({ name, version }) => (version ? `${name}.${version}` : name);
 
+    /** Normalize a known versioned scale to the stable identifier used by settings. */
+    static NormalizeScaleIdentifier(airQuality) {
+        if (!airQuality?.scale) return airQuality;
+
+        const scaleName = AirQuality.GetNameFromScale(airQuality.scale);
+        const scale = Object.values(AirQuality.Config.Scales).find(({ weatherKitScale }) => weatherKitScale.name === scaleName);
+        if (!scale) return airQuality;
+
+        const normalizedScale = AirQuality.ToWeatherKitScale(scale.weatherKitScale);
+        return airQuality.scale === normalizedScale ? airQuality : { ...airQuality, scale: normalizedScale };
+    }
+
+    static GetNameFromScale(scale) {
+        if (!scale) return "";
+        return scale.replace(/\.\d+$/, "");
+    }
+
     static ScaleMatches = (scale, name) => scale === name || (scale?.startsWith(`${name}.`) && /^\d+$/.test(scale.slice(name.length + 1)));
 
     /**
