@@ -794,7 +794,7 @@ export default class QWeather {
         }
         Console.debug("☑️ HistoricalAir", `locationID: ${locationID}`, `date: ${date}`);
         const request = {
-            url: `${this.endpoint}/v7/historical/air/?location=${locationID}&date=${date}`,
+            url: `${this.endpoint}/v7/historical/air?location=${locationID}&date=${date}`,
             headers: this.headers,
         };
         try {

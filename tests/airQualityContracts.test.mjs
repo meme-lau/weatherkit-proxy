@@ -104,6 +104,21 @@ test("和风各预报产品使用接口 updateTime 作为 reportedTime", async (
     );
 });
 
+test("和风历史空气质量使用无尾斜杠的规范路径", async () => {
+    let requestedUrl;
+    await withFetch(
+        url => {
+            requestedUrl = url;
+            return { code: "200", airHourly: [] };
+        },
+        async () => {
+            await new QWeather(parameters, "test-token").prefetchYesterdayAirQuality({ id: "101280601" });
+        },
+    );
+
+    assert.equal(new URL(requestedUrl).pathname, "/v7/historical/air");
+});
+
 async function withFetch(bodyForUrl, callback) {
     const originalFetch = globalThis.fetch;
     globalThis.fetch = async input => {

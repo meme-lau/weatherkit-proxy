@@ -11,16 +11,14 @@ test("Response passes through original bytes when the country is not replaced", 
     assert.deepEqual(new Uint8Array(res.body), originalBytes);
 });
 
-test("Response processes a configured root that exists outside the request dataSets", async () => {
+test("Response leaves a configured root outside the request dataSets untouched", async () => {
     const originalBytes = createWeatherRoot([4, 5]);
     const preFetched = { forecastNextHour: Promise.resolve(makeVisibleNextHour("CONFIGURED_PROVIDER")) };
     const Settings = { DataSets: ["forecastNextHour"], Weather: { Replace: ["CN"] }, NextHour: { Provider: "ColorfulClouds" } };
 
     const res = await Response({ url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-CN/22.5/114.0?country=CN&dataSets=news" }, { bodyBytes: originalBytes, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, status: 200 }, { preFetched, Settings });
 
-    const all = WeatherKit2.decode(new ByteBuffer(new Uint8Array(res.body)), "all");
-    assert.equal(all.forecastNextHour.metadata.providerName, "CONFIGURED_PROVIDER");
-    assert.ok(all.news);
+    assert.deepEqual(new Uint8Array(res.body), originalBytes);
 });
 
 test("Response leaves requested roots untouched when no dataSets are configured", async () => {

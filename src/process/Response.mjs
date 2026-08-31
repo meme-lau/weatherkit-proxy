@@ -137,9 +137,13 @@ export async function Response($request, $response, context = {}) {
                     const parameters = preParameters || parseWeatherKitURL(url);
                     const configuredDataSets = Array.isArray(Settings?.DataSets) ? Settings.DataSets : database.WeatherKit.Settings.DataSets;
                     const dataSetMap = Configs?.DataSets ?? database.WeatherKit.Configs.DataSets;
-                    const rootNames = configuredDataSets.map(dataSet => dataSetMap[dataSet]).filter(Boolean);
+                    // 只解析并处理客户端本次请求、且用户配置允许代理修改的数据集。
+                    // Apple 原始 dataSets 仍由转发层完整保留，未进入交集的 root slot 原字节透传。
+                    const requestedDataSets = Array.isArray(parameters?.dataSets) ? parameters.dataSets : [];
+                    const dataSets = requestedDataSets.filter(dataSet => configuredDataSets.includes(dataSet));
+                    const rootNames = dataSets.map(dataSet => dataSetMap[dataSet] ?? dataSet);
                     const shouldReplace = Settings?.Weather?.Replace?.includes(parameters.country);
-                    const shouldProcessWeatherAlerts = configuredDataSets.includes("weatherAlerts") && WeatherAlerts.CanUseProvider(Settings);
+                    const shouldProcessWeatherAlerts = dataSets.includes("weatherAlerts") && WeatherAlerts.CanUseProvider(Settings);
                     if (!shouldReplace && !shouldProcessWeatherAlerts) {
                         Console.log(`[proxy] 国家 ${parameters.country} 无需替换，直接跳过 FlatBuffer 编解码。`);
                         break;
@@ -169,7 +173,7 @@ export async function Response($request, $response, context = {}) {
                                 // 未触及的 root 产品（含 iOS 27 新增 schema）作为不透明表原样透传，避免丢失。
                                 const replacementDataSets = new Set();
                                 const originalForecastNextHour = body.forecastNextHour;
-                                const processableDataSets = (shouldReplace ? configuredDataSets : configuredDataSets.filter(dataSet => dataSet === "weatherAlerts")).filter(dataSet => body?.[dataSet] !== undefined || parameters.dataSets.includes(dataSet));
+                                const processableDataSets = shouldReplace ? dataSets : dataSets.filter(dataSet => dataSet === "weatherAlerts");
 
                                 await Promise.all(
                                     processableDataSets.map(async dataSet => {
